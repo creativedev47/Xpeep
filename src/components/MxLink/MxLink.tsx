@@ -1,19 +1,17 @@
 import type { PropsWithChildren } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, LinkProps } from 'react-router-dom';
 import { WithClassnameType } from 'types';
 
-interface MxLinkPropsType extends PropsWithChildren, WithClassnameType {
-  to: string;
-}
+interface MxLinkPropsType extends LinkProps, WithClassnameType { }
 
 export const MxLink = ({
   to,
   children,
-  className = 'hover:no-underline transition-colors'
-
+  className = 'hover:no-underline transition-colors',
+  ...props
 }: MxLinkPropsType) => {
   return (
-    <Link to={to} className={className}>
+    <Link to={to} className={className} {...props}>
       {children}
     </Link>
   );

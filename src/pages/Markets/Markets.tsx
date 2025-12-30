@@ -60,10 +60,10 @@ export const Markets = () => {
     return (
         <AuthRedirectWrapper requireAuth={false}>
             <PageWrapper>
-                <div className='flex flex-col gap-10 py-12'>
+                <div className='flex flex-col gap-6 md:gap-10 py-6 md:py-12'>
                     <div className='flex flex-col md:flex-row md:items-end justify-between gap-6'>
                         <div>
-                            <h1 className='text-4xl font-bold mb-2 text-primary'>Prediction Markets</h1>
+                            <h1 className='text-3xl md:text-4xl font-bold mb-2 text-primary'>Prediction Markets</h1>
                             <p className='text-soft-blue/80'>Peep into the future and stake your truth.</p>
                         </div>
 
@@ -85,12 +85,12 @@ export const Markets = () => {
                     </div>
 
                     {/* Categories */}
-                    <div className='flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide'>
+                    <div className='flex flex-wrap items-center gap-2 md:gap-3'>
                         {categories.map((cat) => (
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat
+                                className={`px-4 py-2 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all ${selectedCategory === cat
                                     ? 'bg-primary text-background shadow-md'
                                     : 'bg-primary/5 text-primary/60 hover:bg-primary/10'
                                     }`}

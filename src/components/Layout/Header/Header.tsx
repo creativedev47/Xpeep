@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from 'components/Button';
 import { MxLink } from 'components/MxLink';
 import { logout } from 'helpers';
@@ -6,7 +7,7 @@ import { RouteNamesEnum } from 'localConstants';
 import { useMatch } from 'react-router-dom';
 import { Logo } from 'components/Logo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faWallet, faUserCircle, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faWallet, faUserCircle, faSun, faMoon, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useIsAdmin } from 'hooks/useIsAdmin';
 import { useTheme } from 'context/ThemeContext';
 
@@ -15,6 +16,7 @@ export const Header = () => {
   const { address, account } = useGetAccountInfo();
   const isUnlockRoute = Boolean(useMatch(RouteNamesEnum.unlock));
   const isAdmin = useIsAdmin();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -39,13 +41,13 @@ export const Header = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className='sticky top-0 z-50 w-full glass-panel !rounded-none border-b px-6 py-4 flex items-center justify-between'>
-      <div className='flex items-center gap-8'>
+    <header className='sticky top-0 z-50 w-full glass-panel !rounded-none border-b px-4 md:px-6 py-4 flex items-center justify-between'>
+      <div className='flex items-center gap-4 md:gap-8'>
         <MxLink to={RouteNamesEnum.home}>
           <Logo />
         </MxLink>
 
-
+        {/* Desktop Nav */}
         <nav className='hidden lg:flex items-center gap-6'>
           {navItems.map((item) => (
             <MxLink
@@ -59,7 +61,7 @@ export const Header = () => {
         </nav>
       </div>
 
-      <div className='flex items-center gap-4'>
+      <div className='flex items-center gap-2 md:gap-4'>
         <button
           onClick={toggleTheme}
           className='w-10 h-10 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center text-primary hover:bg-primary/10 transition-all'
@@ -103,14 +105,48 @@ export const Header = () => {
           !isUnlockRoute && (
             <MxLink
               to={RouteNamesEnum.unlock}
-              className='neon-button bg-primary text-background font-bold px-6 py-2 rounded-full text-sm uppercase tracking-widest hover:shadow-md'
+              className='neon-button bg-primary text-background font-bold px-4 py-2 md:px-6 md:py-2 rounded-full text-xs md:text-sm uppercase tracking-widest hover:shadow-md'
             >
               <FontAwesomeIcon icon={faWallet} className='mr-2' />
-              Connect
+              <span className="hidden md:inline">Connect</span>
+              <span className="md:hidden">Connect</span>
             </MxLink>
           )
         )}
+
+        {/* Mobile Menu Toggle */}
+        <button
+          className='lg:hidden w-10 h-10 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center text-primary hover:bg-primary/10 transition-all ml-2'
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <FontAwesomeIcon icon={isMobileMenuOpen ? faTimes : faBars} size="lg" />
+        </button>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className='absolute top-full left-0 w-full bg-background border-b border-primary/10 p-6 flex flex-col gap-4 shadow-xl lg:hidden animate-fade-in z-40'>
+          {navItems.map((item) => (
+            <MxLink
+              key={item.name}
+              to={item.route}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className='text-soft-blue hover:text-primary transition-colors font-bold text-lg uppercase tracking-wider py-2 border-b border-primary/5 last:border-0'
+            >
+              {item.name}
+            </MxLink>
+          ))}
+          {/* Mobile Search */}
+          <div className='flex items-center bg-primary/5 border border-primary/10 rounded-xl px-4 py-3 mt-2'>
+            <FontAwesomeIcon icon={faSearch} className='text-primary/30 text-sm' />
+            <input
+              type='text'
+              placeholder='Search events...'
+              className='bg-transparent border-none focus:ring-0 text-sm ml-2 w-full placeholder:text-primary/20 text-primary'
+            />
+          </div>
+        </div>
+      )}
     </header>
 
   );
