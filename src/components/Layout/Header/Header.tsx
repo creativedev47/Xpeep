@@ -1,0 +1,118 @@
+import { Button } from 'components/Button';
+import { MxLink } from 'components/MxLink';
+import { logout } from 'helpers';
+import { useGetIsLoggedIn, useGetAccountInfo } from 'hooks';
+import { RouteNamesEnum } from 'localConstants';
+import { useMatch } from 'react-router-dom';
+import { Logo } from 'components/Logo';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faWallet, faUserCircle, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { useIsAdmin } from 'hooks/useIsAdmin';
+import { useTheme } from 'context/ThemeContext';
+
+export const Header = () => {
+  const isLoggedIn = useGetIsLoggedIn();
+  const { address, account } = useGetAccountInfo();
+  const isUnlockRoute = Boolean(useMatch(RouteNamesEnum.unlock));
+  const isAdmin = useIsAdmin();
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    logout(`${window.location.origin}/unlock`, undefined, false);
+  };
+
+  const navItems = [
+    { name: 'Home', route: RouteNamesEnum.home },
+    { name: 'Markets', route: RouteNamesEnum.markets },
+    ...(isAdmin ? [
+      { name: 'Create', route: RouteNamesEnum.createMarket },
+      { name: 'Control', route: RouteNamesEnum.admin }
+    ] : []),
+    { name: 'My Peeps', route: RouteNamesEnum.myBets },
+    { name: 'Wallet', route: RouteNamesEnum.wallet },
+    { name: 'Community', route: RouteNamesEnum.community },
+  ];
+
+  const formattedBalance = (parseFloat(account.balance) / 10 ** 18).toFixed(4);
+
+
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <header className='sticky top-0 z-50 w-full glass-panel !rounded-none border-b px-6 py-4 flex items-center justify-between'>
+      <div className='flex items-center gap-8'>
+        <MxLink to={RouteNamesEnum.home}>
+          <Logo />
+        </MxLink>
+
+
+        <nav className='hidden lg:flex items-center gap-6'>
+          {navItems.map((item) => (
+            <MxLink
+              key={item.name}
+              to={item.route}
+              className='text-soft-blue hover:text-primary transition-colors font-medium text-sm uppercase tracking-wider'
+            >
+              {item.name}
+            </MxLink>
+          ))}
+        </nav>
+      </div>
+
+      <div className='flex items-center gap-4'>
+        <button
+          onClick={toggleTheme}
+          className='w-10 h-10 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center text-primary hover:bg-primary/10 transition-all'
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          <FontAwesomeIcon icon={theme === 'light' ? faMoon : faSun} />
+        </button>
+
+        <div className='hidden md:flex items-center bg-primary/5 border border-primary/10 rounded-full px-4 py-1.5 focus-within:border-primary/50 transition-colors'>
+          <FontAwesomeIcon icon={faSearch} className='text-primary/30 text-xs' />
+          <input
+            type='text'
+            placeholder='Search events...'
+            className='bg-transparent border-none focus:ring-0 text-sm ml-2 w-48 placeholder:text-primary/20 text-primary'
+          />
+        </div>
+
+        {isLoggedIn ? (
+          <div className='flex items-center gap-3'>
+            <div className='hidden sm:flex flex-col items-end'>
+              <span className='text-[10px] text-primary/40 uppercase font-bold'>Balance</span>
+              <span className='text-xs font-mono text-primary'>
+                {formattedBalance} EGLD
+              </span>
+
+            </div>
+            <div className='h-8 w-[1px] bg-primary/10 mx-1 hidden sm:block' />
+            <div className='flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-full pl-3 pr-1 py-1'>
+              <span className='text-xs font-mono text-primary'>
+                {address.slice(0, 6)}...{address.slice(-4)}
+              </span>
+              <button
+                onClick={handleLogout}
+                className='h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors'
+              >
+                <FontAwesomeIcon icon={faUserCircle} className='text-primary' />
+              </button>
+            </div>
+          </div>
+        ) : (
+          !isUnlockRoute && (
+            <MxLink
+              to={RouteNamesEnum.unlock}
+              className='neon-button bg-primary text-background font-bold px-6 py-2 rounded-full text-sm uppercase tracking-widest hover:shadow-md'
+            >
+              <FontAwesomeIcon icon={faWallet} className='mr-2' />
+              Connect
+            </MxLink>
+          )
+        )}
+      </div>
+    </header>
+
+  );
+};
+

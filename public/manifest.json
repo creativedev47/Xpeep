@@ -1,0 +1,24 @@
+{
+  "name": "Xpeep - Decentralized Prediction Market",
+  "short_name": "Xpeep",
+  "description": "Peep the Future, Bet on Truth. A decentralized prediction market platform built on MultiversX.",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff"
+}

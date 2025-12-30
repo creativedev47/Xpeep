@@ -1,0 +1,302 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.89.0",
+            "commitHash": "29483883eed69d5fb4db01964cdf2af4d86e9cb2",
+            "commitDate": "2025-08-04",
+            "channel": "Stable",
+            "short": "rustc 1.89.0 (29483883e 2025-08-04)"
+        },
+        "contractCrate": {
+            "name": "xpeep",
+            "version": "0.1.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.58.0"
+        }
+    },
+    "name": "XPeep",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "initial_admin",
+                "type": "optional<Address>",
+                "multi_arg": true
+            }
+        ],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "createMarket",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "description",
+                    "type": "bytes"
+                },
+                {
+                    "name": "end_time",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "placeBet",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "market_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "outcome",
+                    "type": "u8"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "resolveMarket",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "market_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "winning_outcome",
+                    "type": "u8"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "claimWinnings",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "market_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getMarketCount",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "getMarket",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Market"
+                }
+            ]
+        },
+        {
+            "name": "getUserBet",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "market_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "user",
+                    "type": "Address"
+                },
+                {
+                    "name": "outcome",
+                    "type": "u8"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "getOutcomeTotal",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "market_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "outcome",
+                    "type": "u8"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "getParticipantCount",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "market_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getUserBetOutcome",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "market_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "user",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "getUserBetAmount",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "market_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "user",
+                    "type": "Address"
+                },
+                {
+                    "name": "outcome",
+                    "type": "u8"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "addAdmin",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "admin",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "removeAdmin",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "admin",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getAdmins",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "variadic<Address>",
+                    "multi_result": true
+                }
+            ]
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "Market": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                },
+                {
+                    "name": "description",
+                    "type": "bytes"
+                },
+                {
+                    "name": "end_time",
+                    "type": "u64"
+                },
+                {
+                    "name": "total_staked",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "status",
+                    "type": "MarketStatus"
+                },
+                {
+                    "name": "winning_outcome",
+                    "type": "u8"
+                }
+            ]
+        },
+        "MarketStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Open",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Closed",
+                    "discriminant": 1
+                },
+                {
+                    "name": "Resolved",
+                    "discriminant": 2
+                },
+                {
+                    "name": "Disputed",
+                    "discriminant": 3
+                }
+            ]
+        }
+    }
+}

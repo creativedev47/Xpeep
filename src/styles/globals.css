@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 0 0 0;
+    --color-secondary: 51 51 51;
+    --color-background: 245 245 240;
+    --color-background-light: 255 255 255;
+    --color-accent: 102 102 102;
+    --color-warning: 217 119 6;
+    --color-soft-blue: 75 85 99;
+    --bg-gradient-start: #ffffff;
+    --bg-gradient-end: #fdfbf7;
+    --glass-bg: rgb(255 255 255 / 0.4);
+    --glass-border: rgb(0 0 0 / 0.05);
+    --glow-primary: rgb(0 0 0 / 0.03);
+    --glow-secondary: rgb(0 0 0 / 0.02);
+  }
+
+  .dark {
+    --color-primary: 255 255 255;
+    --color-secondary: 168 85 247;
+    --color-background: 10 10 10;
+    --color-background-light: 26 26 26;
+    --color-accent: 59 130 246;
+    --color-warning: 245 158 11;
+    --color-soft-blue: 148 163 184;
+    --bg-gradient-start: #1a1a1a;
+    --bg-gradient-end: #0a0a0a;
+    --glass-bg: rgb(255 255 255 / 0.05);
+    --glass-border: rgb(255 255 255 / 0.1);
+    --glow-primary: rgb(168 85 247 / 0.15);
+    --glow-secondary: rgb(59 130 246 / 0.1);
+  }
+
+  body {
+    @apply bg-background text-primary font-sans antialiased;
+    background-image: radial-gradient(circle at 50% 0%, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-sans font-bold uppercase tracking-widest text-primary;
+    letter-spacing: 0.05em;
+  }
+}
+
+
+@layer components {
+  .glass-panel {
+    background: var(--glass-bg);
+    @apply backdrop-blur-xl border rounded-2xl shadow-2xl;
+    border-color: var(--glass-border);
+  }
+
+  .neon-button {
+    @apply relative overflow-hidden transition-all duration-300 active:scale-95;
+  }
+
+  .dark .neon-button:hover {
+    box-shadow: 0 0 20px rgb(var(--color-primary) / 0.1);
+  }
+
+  .neon-text {
+    @apply text-primary;
+  }
+
+  .dark .neon-text {
+    filter: drop-shadow(0 0 8px rgb(var(--color-primary) / 0.3));
+  }
+
+  .neon-border {
+    @apply border transition-colors;
+    border-color: var(--glass-border);
+  }
+
+  .neon-border:hover {
+    @apply border-primary/30;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px rgb(var(--color-primary) / 0.2);
+  }
+
+  .bg-glow-primary {
+    background: radial-gradient(circle at center, var(--glow-primary) 0%, transparent 70%);
+  }
+
+  .bg-glow-secondary {
+    background: radial-gradient(circle at center, var(--glow-secondary) 0%, transparent 70%);
+  }
+}
+
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-accent));
+  opacity: 0.2;
+  @apply rounded-full border-2 border-background transition-colors;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-primary));
+  opacity: 0.2;
+}
+
+
+/* Animations */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* sdk-dapp login buttons overrides */
+.unlock-buttons .dapp-login-button {
+  @apply !bg-primary !text-background !border-none !rounded-xl !py-4 !px-6 !font-bold !uppercase !tracking-widest !text-xs !transition-all !duration-300 !shadow-none !w-full !flex !items-center !justify-center !gap-3;
+}
+
+.unlock-buttons .dapp-login-button:hover {
+  background-color: rgb(var(--color-primary));
+  opacity: 0.9;
+  @apply !shadow-lg !scale-[1.02];
+}
+
+.unlock-buttons .dapp-login-button:active {
+  @apply !scale-95;
+}
