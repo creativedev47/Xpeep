@@ -16,19 +16,17 @@ export const useCreateMarket = () => {
         const currentCount = await getMarketCount();
         const nextId = (currentCount || 0) + 1;
 
-        // 2. Save metadata to Supabase first (or after, but first is safer for UI consistency)
-        if (category) {
-            try {
-                await supabase
-                    .from('markets_metadata')
-                    .upsert({
-                        market_id: nextId,
-                        category,
-                        long_description: description
-                    });
-            } catch (err) {
-                console.error('Failed to save market metadata to Supabase', err);
-            }
+        // 2. Save metadata to Supabase (Crucial for visibility in the new source-of-truth system)
+        try {
+            await supabase
+                .from('markets_metadata')
+                .upsert({
+                    market_id: nextId,
+                    category: category || 'General',
+                    long_description: description
+                });
+        } catch (err) {
+            console.error('Failed to save market metadata to Supabase', err);
         }
 
         const createMarketTransaction = smartContract.methodsExplicit

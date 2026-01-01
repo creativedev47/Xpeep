@@ -58,6 +58,7 @@ export const Dashboard = () => {
 
   const { getMarket, getMarketCount } = useGetMarketData();
   const { getUserBetOutcome } = useGetUserBets();
+  const { fetchAllMetadata } = useMarketMetadata();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -71,12 +72,17 @@ export const Dashboard = () => {
           for (let i = 1; i <= count; i++) {
             const outcome = await getUserBetOutcome(i);
             if (outcome && outcome !== 0) {
-              const market = await getMarket(i);
-              if (market && (market.status?.name === 'Open' || market.status === 'Open')) {
+              const [market, allMetadata] = await Promise.all([
+                getMarket(i),
+                fetchAllMetadata()
+              ]);
+              const metadata = allMetadata?.find((m: any) => m.market_id === i);
+
+              if (market && metadata && (market.status?.name === 'Open' || market.status === 'Open')) {
                 activeCount++;
                 fetchedActiveBets.push({
                   id: i,
-                  title: market.description?.toString() || `Market #${i}`,
+                  title: market.description?.toString() || metadata.title || `Market #${i}`,
                   outcome: outcome === 1 ? 'YES' : 'NO',
                   totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
                   endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A'

@@ -23,18 +23,20 @@ export const Markets = () => {
                     fetchAllMetadata()
                 ]);
 
-                if (count) {
+                if (allMetadata && allMetadata.length > 0) {
                     const fetchedMarkets = [];
-                    for (let i = 1; i <= count; i++) {
+                    // Use metadata as the source of truth for which markets to show
+                    for (const metadata of allMetadata) {
+                        const marketId = metadata.market_id;
                         const [market, participants] = await Promise.all([
-                            getMarket(i),
-                            getParticipantCount(i)
+                            getMarket(marketId),
+                            getParticipantCount(marketId)
                         ]);
+
                         if (market) {
-                            const metadata = allMetadata?.find((m: any) => m.market_id === i);
                             fetchedMarkets.push({
-                                id: market.id?.toString() || i.toString(),
-                                title: market.description?.toString() || 'Untitled Market',
+                                id: marketId.toString(),
+                                title: market.description?.toString() || metadata.title || 'Untitled Market',
                                 category: metadata?.category || 'General',
                                 totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
                                 participants: participants || 0,

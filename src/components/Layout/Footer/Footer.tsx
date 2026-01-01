@@ -19,7 +19,7 @@ export const Footer = () => {
             Peep the Future. The next generation of decentralized prediction markets on MultiversX.
           </p>
           <div className='flex gap-4'>
-            <a href='#' className='text-primary/40 hover:text-primary transition-colors'>
+            <a href='https://x.com/thexpeep' target='blank' className='text-primary/40 hover:text-primary transition-colors'>
               <FontAwesomeIcon icon={faTwitter as any} size='lg' />
             </a>
             <a href='#' className='text-primary/40 hover:text-primary transition-colors'>
