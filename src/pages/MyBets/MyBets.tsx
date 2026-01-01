@@ -3,7 +3,7 @@ import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHistory, faSpinner, faCheckCircle, faTimesCircle, faClock } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData, useGetUserBets, useClaimWinnings } from 'hooks/transactions';
-import { useMarketMetadata } from 'hooks/supabase';
+import { useMarketMetadata, useTableRealtime } from 'hooks/supabase';
 import { MxLink } from 'components/MxLink';
 import { RouteNamesEnum } from 'localConstants';
 
@@ -15,76 +15,79 @@ export const MyBets = () => {
     const { fetchAllMetadata } = useMarketMetadata();
     const claimWinnings = useClaimWinnings();
 
-    useEffect(() => {
-        const fetchMyBets = async () => {
-            setIsLoading(true);
-            try {
-                const [count, allMetadata] = await Promise.all([
-                    getMarketCount(),
-                    fetchAllMetadata()
-                ]);
+    const fetchMyBets = async () => {
+        setIsLoading(true);
+        try {
+            const [count, allMetadata] = await Promise.all([
+                getMarketCount(),
+                fetchAllMetadata()
+            ]);
 
-                if (count) {
-                    const fetchedBets = [];
-                    for (let i = 1; i <= count; i++) {
-                        const outcome = await getUserBetOutcome(i);
-                        if (outcome && outcome !== 0) {
-                            const metadata = allMetadata?.find((m: any) => m.market_id === i);
-                            if (metadata) {
-                                const market = await getMarket(i);
-                                if (market) {
+            if (count) {
+                const fetchedBets = [];
+                for (let i = 1; i <= count; i++) {
+                    const outcome = await getUserBetOutcome(i);
+                    if (outcome && outcome !== 0) {
+                        const metadata = allMetadata?.find((m: any) => m.market_id === i);
+                        if (metadata) {
+                            const market = await getMarket(i);
+                            if (market) {
 
-                                    let claimableAmount = '0.00';
-                                    let winningOutcome = 0;
-                                    const isResolved = market.status?.name === 'Resolved' || market.status === 'Resolved';
+                                let claimableAmount = '0.00';
+                                let winningOutcome = 0;
+                                const isResolved = market.status?.name === 'Resolved' || market.status === 'Resolved';
 
-                                    if (isResolved) {
-                                        winningOutcome = (market.winning_outcome?.toNumber ? market.winning_outcome.toNumber() : Number(market.winning_outcome)) || metadata?.winning_outcome || 0;
+                                if (isResolved) {
+                                    winningOutcome = (market.winning_outcome?.toNumber ? market.winning_outcome.toNumber() : Number(market.winning_outcome)) || metadata?.winning_outcome || 0;
 
-                                        if (winningOutcome === outcome) {
-                                            const totalWinningPool = await getOutcomeTotal(i, winningOutcome);
-                                            const userBetAmount = await getUserBetAmount(i, outcome);
+                                    if (winningOutcome === outcome) {
+                                        const totalWinningPool = await getOutcomeTotal(i, winningOutcome);
+                                        const userBetAmount = await getUserBetAmount(i, outcome);
 
-                                            if (totalWinningPool && userBetAmount) {
-                                                const totalStaked = parseFloat(market.total_staked);
-                                                const winningPool = parseFloat(totalWinningPool);
-                                                const userBet = parseFloat(userBetAmount);
-                                                // Ensure we don't divide by zero
-                                                if (winningPool > 0) {
-                                                    claimableAmount = ((userBet * totalStaked) / winningPool / 10 ** 18).toFixed(2);
-                                                }
+                                        if (totalWinningPool && userBetAmount) {
+                                            const totalStaked = parseFloat(market.total_staked);
+                                            const winningPool = parseFloat(totalWinningPool);
+                                            const userBet = parseFloat(userBetAmount);
+                                            // Ensure we don't divide by zero
+                                            if (winningPool > 0) {
+                                                claimableAmount = ((userBet * totalStaked) / winningPool / 10 ** 18).toFixed(2);
                                             }
                                         }
                                     }
-
-                                    fetchedBets.push({
-                                        id: i,
-                                        title: market.description?.toString() || `Market #${i}`,
-                                        category: metadata?.category || 'General',
-                                        outcome: outcome === 1 ? 'YES' : 'NO',
-                                        status: market.status?.name || market.status?.toString() || 'Open',
-                                        winningOutcome: winningOutcome,
-                                        claimableAmount,
-                                        // Can claim if resolved, user won, AND they have a claimable amount > 0
-                                        canClaim: isResolved &&
-                                            winningOutcome === outcome &&
-                                            parseFloat(claimableAmount) > 0
-                                    });
                                 }
+
+                                fetchedBets.push({
+                                    id: i,
+                                    title: market.description?.toString() || `Market #${i}`,
+                                    category: metadata?.category || 'General',
+                                    outcome: outcome === 1 ? 'YES' : 'NO',
+                                    status: market.status?.name || market.status?.toString() || 'Open',
+                                    winningOutcome: winningOutcome,
+                                    claimableAmount,
+                                    // Can claim if resolved, user won, AND they have a claimable amount > 0
+                                    canClaim: isResolved &&
+                                        winningOutcome === outcome &&
+                                        parseFloat(claimableAmount) > 0
+                                });
                             }
                         }
                     }
-                    setMyBets(fetchedBets);
                 }
-            } catch (err) {
-                console.error('Failed to fetch my bets', err);
-            } finally {
-                setIsLoading(false);
+                setMyBets(fetchedBets);
             }
-        };
+        } catch (err) {
+            console.error('Failed to fetch my bets', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchMyBets();
     }, []);
+
+    // Subscribe to all changes in markets_metadata to keep visibility in sync
+    useTableRealtime('markets_metadata', fetchMyBets);
 
     const handleClaim = async (marketId: number) => {
         await claimWinnings(marketId);

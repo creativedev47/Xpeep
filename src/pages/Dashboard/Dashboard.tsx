@@ -3,7 +3,7 @@ import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine, faWallet, faTrophy, faPercentage, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData, useGetUserBets } from 'hooks/transactions';
-import { useGetAccountInfo, useIsAdmin, useMarketMetadata } from 'hooks';
+import { useGetAccountInfo, useIsAdmin, useMarketMetadata, useTableRealtime } from 'hooks';
 import { useResolvedHistory } from 'hooks/supabase';
 import { MxLink } from 'components/MxLink';
 import { RouteNamesEnum } from 'localConstants';
@@ -60,48 +60,51 @@ export const Dashboard = () => {
   const { getUserBetOutcome } = useGetUserBets();
   const { fetchAllMetadata } = useMarketMetadata();
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!address) return;
-      setIsLoading(true);
-      try {
-        const count = await getMarketCount();
-        if (count) {
-          const fetchedActiveBets = [];
-          let activeCount = 0;
-          for (let i = 1; i <= count; i++) {
-            const outcome = await getUserBetOutcome(i);
-            if (outcome && outcome !== 0) {
-              const [market, allMetadata] = await Promise.all([
-                getMarket(i),
-                fetchAllMetadata()
-              ]);
-              const metadata = allMetadata?.find((m: any) => m.market_id === i);
+  const fetchDashboardData = async () => {
+    if (!address) return;
+    setIsLoading(true);
+    try {
+      const count = await getMarketCount();
+      if (count) {
+        const fetchedActiveBets = [];
+        let activeCount = 0;
+        for (let i = 1; i <= count; i++) {
+          const outcome = await getUserBetOutcome(i);
+          if (outcome && outcome !== 0) {
+            const [market, allMetadata] = await Promise.all([
+              getMarket(i),
+              fetchAllMetadata()
+            ]);
+            const metadata = allMetadata?.find((m: any) => m.market_id === i);
 
-              if (market && metadata && (market.status?.name === 'Open' || market.status === 'Open')) {
-                activeCount++;
-                fetchedActiveBets.push({
-                  id: i,
-                  title: market.description?.toString() || metadata.title || `Market #${i}`,
-                  outcome: outcome === 1 ? 'YES' : 'NO',
-                  totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
-                  endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A'
-                });
-              }
+            if (market && metadata && (market.status?.name === 'Open' || market.status === 'Open')) {
+              activeCount++;
+              fetchedActiveBets.push({
+                id: i,
+                title: market.description?.toString() || metadata.title || `Market #${i}`,
+                outcome: outcome === 1 ? 'YES' : 'NO',
+                totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
+                endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A'
+              });
             }
           }
-          setStats(prev => ({ ...prev, activeBets: activeCount }));
-          setActiveBetsList(fetchedActiveBets);
         }
-      } catch (err) {
-        console.error('Failed to fetch dashboard data', err);
-      } finally {
-        setIsLoading(false);
+        setStats(prev => ({ ...prev, activeBets: activeCount }));
+        setActiveBetsList(fetchedActiveBets);
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch dashboard data', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchDashboardData();
   }, [address]);
+
+  // Subscribe to all changes in markets_metadata to keep visibility in sync
+  useTableRealtime('markets_metadata', fetchDashboardData);
 
   return (
     <AuthRedirectWrapper requireAuth={true}>

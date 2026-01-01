@@ -4,7 +4,7 @@ import { MarketCard } from 'components/MarketCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faFilter, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData } from 'hooks/transactions';
-import { useMarketMetadata } from 'hooks/supabase';
+import { useMarketMetadata, useTableRealtime } from 'hooks/supabase';
 
 export const Markets = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -14,48 +14,53 @@ export const Markets = () => {
     const { getMarket, getMarketCount, getParticipantCount } = useGetMarketData();
     const { fetchAllMetadata } = useMarketMetadata();
 
-    useEffect(() => {
-        const fetchMarkets = async () => {
-            setIsLoading(true);
-            try {
-                const [count, allMetadata] = await Promise.all([
-                    getMarketCount(),
-                    fetchAllMetadata()
-                ]);
+    const fetchMarkets = async () => {
+        setIsLoading(true);
+        try {
+            const [count, allMetadata] = await Promise.all([
+                getMarketCount(),
+                fetchAllMetadata()
+            ]);
 
-                if (allMetadata && allMetadata.length > 0) {
-                    const fetchedMarkets = [];
-                    // Use metadata as the source of truth for which markets to show
-                    for (const metadata of allMetadata) {
-                        const marketId = metadata.market_id;
-                        const [market, participants] = await Promise.all([
-                            getMarket(marketId),
-                            getParticipantCount(marketId)
-                        ]);
+            if (allMetadata && allMetadata.length > 0) {
+                const fetchedMarkets = [];
+                // Use metadata as the source of truth for which markets to show
+                for (const metadata of allMetadata) {
+                    const marketId = metadata.market_id;
+                    const [market, participants] = await Promise.all([
+                        getMarket(marketId),
+                        getParticipantCount(marketId)
+                    ]);
 
-                        if (market) {
-                            fetchedMarkets.push({
-                                id: marketId.toString(),
-                                title: market.description?.toString() || metadata.title || 'Untitled Market',
-                                category: metadata?.category || 'General',
-                                totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
-                                participants: participants || 0,
-                                endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A',
-                                status: market.status?.name || market.status?.toString() || 'Open'
-                            });
-                        }
+                    if (market) {
+                        fetchedMarkets.push({
+                            id: marketId.toString(),
+                            title: market.description?.toString() || metadata.title || 'Untitled Market',
+                            category: metadata?.category || 'General',
+                            totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
+                            participants: participants || 0,
+                            endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A',
+                            status: market.status?.name || market.status?.toString() || 'Open'
+                        });
                     }
-                    setMarkets(fetchedMarkets);
                 }
-            } catch (err) {
-                console.error('Failed to fetch markets', err);
-            } finally {
-                setIsLoading(false);
+                setMarkets(fetchedMarkets);
+            } else {
+                setMarkets([]);
             }
-        };
+        } catch (err) {
+            console.error('Failed to fetch markets', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchMarkets();
     }, []);
+
+    // Subscribe to all changes in markets_metadata to keep visibility in sync
+    useTableRealtime('markets_metadata', fetchMarkets);
 
     const categories = ['All', 'Crypto', 'Sports', 'Tech', 'Web3', 'Politics', 'History'];
 

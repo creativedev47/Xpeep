@@ -14,6 +14,7 @@ import {
   XaliasLoginButton,
   CrossWindowLoginButton
 } from 'components/sdkDappComponents';
+import { useExtensionLogin } from '@multiversx/sdk-dapp/hooks/login/useExtensionLogin';
 import { nativeAuth } from 'config';
 import { RouteNamesEnum } from 'localConstants';
 import { useNavigate } from 'react-router-dom';
@@ -41,6 +42,16 @@ export const Unlock = () => {
     onLoginRedirect: () => {
       navigate(RouteNamesEnum.dashboard);
     }
+  };
+
+  const [initiateLogin] = useExtensionLogin({
+    callbackRoute: commonProps.callbackRoute,
+    nativeAuth: commonProps.nativeAuth,
+    onLoginRedirect: commonProps.onLoginRedirect
+  });
+
+  const handleExtensionLogin = () => {
+    initiateLogin();
   };
 
   return (
@@ -78,10 +89,12 @@ export const Unlock = () => {
 
                 <div className='flex flex-col gap-2'>
                   <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 ml-1'>Desktop</span>
-                  <ExtensionLoginButton
-                    loginButtonText='DeFi Wallet'
-                    {...commonProps}
-                  />
+                  <button
+                    onClick={handleExtensionLogin}
+                    className='neon-button py-2.5 px-6 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary text-background hover:shadow-lg transition-all'
+                  >
+                    DeFi Wallet
+                  </button>
                 </div>
 
                 <div className='flex flex-col gap-2'>
