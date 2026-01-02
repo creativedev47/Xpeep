@@ -25,15 +25,16 @@ export const Header = () => {
 
   const navItems = [
     { name: 'Home', route: RouteNamesEnum.home },
-    { name: 'Markets', route: RouteNamesEnum.markets },
     ...(isAdmin ? [
       { name: 'Create', route: RouteNamesEnum.createMarket },
       { name: 'Control', route: RouteNamesEnum.admin }
-    ] : []),
-    { name: 'My Peeps', route: RouteNamesEnum.myBets },
-    { name: 'Roadmap', route: RouteNamesEnum.roadmap },
+    ] : [
+      { name: 'Markets', route: RouteNamesEnum.markets },
+      { name: 'My Peeps', route: RouteNamesEnum.myBets },
+      { name: 'Roadmap', route: RouteNamesEnum.roadmap },
+      { name: 'Community', route: RouteNamesEnum.community }
+    ]),
     { name: 'Wallet', route: RouteNamesEnum.wallet },
-    { name: 'Community', route: RouteNamesEnum.community },
   ];
 
   const formattedBalance = (parseFloat(account.balance) / 10 ** 18).toFixed(4);
