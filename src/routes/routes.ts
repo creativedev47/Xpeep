@@ -1,5 +1,5 @@
 import { RouteNamesEnum } from 'localConstants';
-import { Dashboard, Disclaimer, Home, Markets, MyBets, Wallet, Community, MarketDetails, CreateMarket, AdminDashboard, Roadmap } from 'pages';
+import { Dashboard, Disclaimer, Home, Markets, MyBets, Wallet, Community, MarketDetails, CreateMarket, AdminDashboard, Roadmap, HowItWorks } from 'pages';
 
 
 import { RouteType } from 'types';
@@ -68,6 +68,11 @@ export const routes: RouteWithTitleType[] = [
     path: RouteNamesEnum.disclaimer,
     title: 'Disclaimer',
     component: Disclaimer
+  },
+  {
+    path: RouteNamesEnum.howItWorks,
+    title: 'How It Works',
+    component: HowItWorks
   }
 ];
 

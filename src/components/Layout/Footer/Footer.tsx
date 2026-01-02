@@ -36,7 +36,7 @@ export const Footer = () => {
           <h4 className='text-primary font-bold text-sm uppercase tracking-widest mb-4'>Platform</h4>
           <ul className='space-y-2 text-sm text-soft-blue/80'>
             <li><a href='#' className='hover:text-primary transition-colors'>About Xpeep</a></li>
-            <li><a href='#' className='hover:text-primary transition-colors'>How it Works</a></li>
+            <li><MxLink to={RouteNamesEnum.howItWorks} className='hover:text-primary transition-colors'>How it Works</MxLink></li>
             <li><a href='#' className='hover:text-primary transition-colors'>FAQ</a></li>
             <li><a href='#' className='hover:text-primary transition-colors'>Terms of Service</a></li>
           </ul>
