@@ -286,60 +286,76 @@ export const MarketDetails = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <h3 className='text-lg font-bold mb-6 uppercase tracking-wider text-primary'>Place your Peep</h3>
-
-                                        <div className='flex flex-col gap-4 mb-8'>
-                                            {market.outcomes.map((outcome: any) => (
-                                                <button
-                                                    key={outcome.name}
-                                                    onClick={() => setSelectedOutcome(outcome.id)}
-                                                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${selectedOutcome === outcome.id
-                                                        ? `border-primary bg-primary/10 scale-[1.05] shadow-md`
-                                                        : `border-primary/5 bg-primary/5 hover:scale-[1.02]`
-                                                        }`}
-                                                >
-                                                    <span className={`font-bold text-primary`}>{outcome.name}</span>
-                                                    <span className='text-xs font-mono text-primary/60'>Odds: {outcome.odds}x</span>
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div className='flex flex-col gap-2 mb-6'>
-                                            <label className='text-[10px] text-primary/40 uppercase font-bold ml-2'>Stake Amount (EGLD)</label>
-                                            <div className='relative'>
-                                                <input
-                                                    type="number"
-                                                    className='w-full bg-primary/5 border border-primary/10 rounded-2xl px-4 py-3 focus:border-primary/50 transition-colors font-mono text-primary'
-                                                    value={stakeAmount}
-                                                    onChange={(e) => setStakeAmount(e.target.value)}
-                                                />
-                                                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary/20'>EGLD</span>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            onClick={handlePlaceBet}
-                                            className='w-full neon-button bg-primary text-background font-bold py-4 rounded-2xl uppercase tracking-widest hover:shadow-md'
-                                        >
-                                            <FontAwesomeIcon icon={faBolt} className='mr-2' />
-                                            Confirm Peep
-                                        </button>
-
-                                        {stakeAmount && selectedOutcome !== null && (
-                                            <div className='mt-4 p-4 rounded-xl bg-primary/5 border border-primary/10'>
-                                                <div className='flex justify-between items-center mb-1'>
-                                                    <span className='text-[10px] uppercase font-bold text-primary/40'>Potential Payout</span>
-                                                    <span className='text-sm font-bold text-primary'>
-                                                        {(parseFloat(stakeAmount) * parseFloat(market.outcomes[selectedOutcome - 1].odds)).toFixed(2)} EGLD
-                                                    </span>
+                                        {isAdmin ? (
+                                            <div className='flex flex-col items-center justify-center py-10 gap-4 text-center'>
+                                                <div className='w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center text-primary/20'>
+                                                    <FontAwesomeIcon icon={faBolt} size='2x' />
                                                 </div>
-                                                <p className='text-[8px] text-primary/20 italic'>* Odds are dynamic and may change until the market closes.</p>
+                                                <div>
+                                                    <h3 className='text-lg font-bold text-primary mb-2 uppercase tracking-wider'>Admin View</h3>
+                                                    <p className='text-xs text-soft-blue/60'>Administrators are restricted from participating in markets to ensure fair resolution.</p>
+                                                </div>
+                                                <div className='w-full h-[1px] bg-primary/5 my-4' />
+                                                <p className='text-[10px] text-primary/40 uppercase font-bold tracking-widest'>Use the Resolution Panel on the left to settle this market.</p>
                                             </div>
-                                        )}
+                                        ) : (
+                                            <>
+                                                <h3 className='text-lg font-bold mb-6 uppercase tracking-wider text-primary'>Place your Peep</h3>
 
-                                        <p className='text-[10px] text-primary/20 text-center mt-4'>
-                                            Network Fee: ~0.001 EGLD
-                                        </p>
+                                                <div className='flex flex-col gap-4 mb-8'>
+                                                    {market.outcomes.map((outcome: any) => (
+                                                        <button
+                                                            key={outcome.name}
+                                                            onClick={() => setSelectedOutcome(outcome.id)}
+                                                            className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${selectedOutcome === outcome.id
+                                                                ? `border-primary bg-primary/10 scale-[1.05] shadow-md`
+                                                                : `border-primary/5 bg-primary/5 hover:scale-[1.02]`
+                                                                }`}
+                                                        >
+                                                            <span className={`font-bold text-primary`}>{outcome.name}</span>
+                                                            <span className='text-xs font-mono text-primary/60'>Odds: {outcome.odds}x</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                <div className='flex flex-col gap-2 mb-6'>
+                                                    <label className='text-[10px] text-primary/40 uppercase font-bold ml-2'>Stake Amount (EGLD)</label>
+                                                    <div className='relative'>
+                                                        <input
+                                                            type="number"
+                                                            className='w-full bg-primary/5 border border-primary/10 rounded-2xl px-4 py-3 focus:border-primary/50 transition-colors font-mono text-primary'
+                                                            value={stakeAmount}
+                                                            onChange={(e) => setStakeAmount(e.target.value)}
+                                                        />
+                                                        <span className='absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary/20'>EGLD</span>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    onClick={handlePlaceBet}
+                                                    className='w-full neon-button bg-primary text-background font-bold py-4 rounded-2xl uppercase tracking-widest hover:shadow-md'
+                                                >
+                                                    <FontAwesomeIcon icon={faBolt} className='mr-2' />
+                                                    Confirm Peep
+                                                </button>
+
+                                                {stakeAmount && selectedOutcome !== null && (
+                                                    <div className='mt-4 p-4 rounded-xl bg-primary/5 border border-primary/10'>
+                                                        <div className='flex justify-between items-center mb-1'>
+                                                            <span className='text-[10px] uppercase font-bold text-primary/40'>Potential Payout</span>
+                                                            <span className='text-sm font-bold text-primary'>
+                                                                {(parseFloat(stakeAmount) * parseFloat(market.outcomes[selectedOutcome - 1].odds)).toFixed(2)} EGLD
+                                                            </span>
+                                                        </div>
+                                                        <p className='text-[8px] text-primary/20 italic'>* Odds are dynamic and may change until the market closes.</p>
+                                                    </div>
+                                                )}
+
+                                                <p className='text-[10px] text-primary/20 text-center mt-4'>
+                                                    Network Fee: ~0.001 EGLD
+                                                </p>
+                                            </>
+                                        )}
                                     </>
                                 )}
                             </div>

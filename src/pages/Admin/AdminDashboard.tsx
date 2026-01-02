@@ -59,25 +59,34 @@ export const AdminDashboard = () => {
     const { getMarket, getMarketCount } = useGetMarketData();
     const resolveMarket = useResolveMarket();
 
+    const { fetchAllMetadata } = useMarketMetadata();
+
     const fetchMarkets = async () => {
         setIsLoading(true);
         try {
-            const count = await getMarketCount();
-            if (count) {
+            const [count, allMetadata] = await Promise.all([
+                getMarketCount(),
+                fetchAllMetadata()
+            ]);
+
+            if (allMetadata && allMetadata.length > 0) {
                 const fetchedMarkets = [];
-                for (let i = 1; i <= count; i++) {
-                    const market = await getMarket(i);
+                for (const metadata of allMetadata) {
+                    const marketId = metadata.market_id;
+                    const market = await getMarket(marketId);
                     if (market) {
                         fetchedMarkets.push({
-                            id: i,
-                            title: market.description?.toString() || `Market #${i}`,
-                            totalStaked: (parseFloat(market.total_staked) / 10 ** 18).toFixed(2),
-                            endTime: new Date(market.end_time * 1000).toLocaleString(),
+                            id: marketId,
+                            title: market.description?.toString() || metadata.title || `Market #${marketId}`,
+                            totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
+                            endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleString() : 'N/A',
                             status: market.status?.name || market.status?.toString() || 'Open'
                         });
                     }
                 }
                 setMarkets(fetchedMarkets);
+            } else {
+                setMarkets([]);
             }
         } catch (err) {
             console.error('Failed to fetch markets for admin', err);
@@ -149,7 +158,6 @@ export const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Markets Table */}
                     <div className='flex flex-col gap-6'>
                         <h2 className='text-2xl font-bold text-primary'>Market Management</h2>
                         <div className='glass-panel overflow-hidden'>
@@ -184,9 +192,55 @@ export const AdminDashboard = () => {
                     </div>
 
                     <ResolvedHistorySection />
+
+                    <MaintenanceSection onWipeSuccess={fetchMarkets} />
                 </div>
             </PageWrapper>
         </AuthRedirectWrapper>
+    );
+};
+
+const MaintenanceSection = ({ onWipeSuccess }: { onWipeSuccess: () => void }) => {
+    const { deleteAllMetadata, deleteAllUserBets, loading } = useMarketMetadata();
+
+    const handleWipe = async () => {
+        if (!window.confirm('🚨 NUCLEAR OPTION 🚨\n\nThis will permanently delete ALL market metadata and bet history from Supabase. This action is irreversible.\n\nAre you ABSOLUTELY sure?')) {
+            return;
+        }
+
+        try {
+            await Promise.all([
+                deleteAllMetadata(),
+                deleteAllUserBets()
+            ]);
+            alert('Visibility history successfully wiped.');
+            onWipeSuccess();
+        } catch (err) {
+            console.error('Wipe failed', err);
+            alert('Failed to wipe data. check console.');
+        }
+    };
+
+    return (
+        <div className='flex flex-col gap-6 mt-10 p-8 glass-panel border-warning/20 bg-warning/5'>
+            <div className='flex flex-col gap-2'>
+                <h2 className='text-2xl font-bold text-warning'>Maintenance Mode</h2>
+                <p className='text-warning/60 text-sm'>Use these tools to reset or clear corrupted data from the visibility layer.</p>
+            </div>
+
+            <div className='flex items-center gap-4'>
+                <button
+                    onClick={handleWipe}
+                    disabled={loading}
+                    className='px-8 py-3 rounded-2xl bg-warning text-background font-bold text-sm uppercase tracking-widest hover:shadow-lg transition-all'
+                >
+                    {loading ? 'Wiping...' : 'Wipe All History'}
+                </button>
+                <div className='flex-1'>
+                    <p className='text-[10px] text-warning/40 uppercase font-bold'>Warning: This only affects the frontend visibility layer (Supabase). Contract state remains on-chain.</p>
+                </div>
+            </div>
+        </div>
     );
 };
 

@@ -14,6 +14,8 @@ export const Markets = () => {
     const { getMarket, getMarketCount, getParticipantCount } = useGetMarketData();
     const { fetchAllMetadata } = useMarketMetadata();
 
+    const [dynamicCategories, setDynamicCategories] = useState<string[]>(['All']);
+
     const fetchMarkets = async () => {
         setIsLoading(true);
         try {
@@ -23,6 +25,10 @@ export const Markets = () => {
             ]);
 
             if (allMetadata && allMetadata.length > 0) {
+                // Extract unique categories
+                const cats = Array.from(new Set(allMetadata.map((m: any) => m.category))).filter(Boolean) as string[];
+                setDynamicCategories(['All', ...cats.sort()]);
+
                 const fetchedMarkets = [];
                 // Use metadata as the source of truth for which markets to show
                 for (const metadata of allMetadata) {
@@ -62,7 +68,6 @@ export const Markets = () => {
     // Subscribe to all changes in markets_metadata to keep visibility in sync
     useTableRealtime('markets_metadata', fetchMarkets);
 
-    const categories = ['All', 'Crypto', 'Sports', 'Tech', 'Web3', 'Politics', 'History'];
 
     return (
         <AuthRedirectWrapper requireAuth={false}>
@@ -93,7 +98,7 @@ export const Markets = () => {
 
                     {/* Categories */}
                     <div className='flex flex-wrap items-center gap-2 md:gap-3'>
-                        {categories.map((cat) => (
+                        {[...dynamicCategories, 'History'].map((cat) => (
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}

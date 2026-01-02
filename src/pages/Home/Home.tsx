@@ -7,31 +7,42 @@ import { RouteNamesEnum } from 'localConstants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faBolt, faShieldAlt, faGlobe, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData } from 'hooks/transactions';
+import { useMarketMetadata } from 'hooks/supabase';
 
 export const Home = () => {
   const [trendingMarkets, setTrendingMarkets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { getMarket, getMarketCount } = useGetMarketData();
+  const { fetchAllMetadata } = useMarketMetadata();
 
   useEffect(() => {
     const fetchTrending = async () => {
       setIsLoading(true);
       try {
-        const count = await getMarketCount();
-        if (count) {
+        const [count, allMetadata] = await Promise.all([
+          getMarketCount(),
+          fetchAllMetadata()
+        ]);
+
+        if (allMetadata && allMetadata.length > 0) {
+          const visibleMarkets = allMetadata
+            .filter((m: any) => m.status === 'Open')
+            .sort((a: any, b: any) => b.market_id - a.market_id)
+            .slice(0, 3);
+
           const fetched = [];
-          // Get last 3 markets as "trending"
-          for (let i = count; i > Math.max(0, count - 3); i--) {
-            const market = await getMarket(i);
+          for (const metadata of visibleMarkets) {
+            const marketId = metadata.market_id;
+            const market = await getMarket(marketId);
             if (market) {
               fetched.push({
-                id: market.id.toString(),
-                title: market.description.toString(),
-                category: 'General',
-                totalStaked: (parseFloat(market.total_staked) / 10 ** 18).toFixed(2),
+                id: marketId.toString(),
+                title: market.description?.toString() || metadata.title || 'Untitled Market',
+                category: metadata.category || 'General',
+                totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
                 participants: 0,
-                endTime: new Date(market.end_time * 1000).toLocaleDateString(),
-                status: market.status
+                endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A',
+                status: market.status?.name || market.status?.toString() || 'Open'
               });
             }
           }

@@ -65,9 +65,53 @@ export const useMarketMetadata = (marketId?: number) => {
         }
     };
 
+    const deleteAllMetadata = async () => {
+        setLoading(true);
+        try {
+            const { error } = await supabase
+                .from('markets_metadata')
+                .delete()
+                .neq('market_id', -1); // Delete all
+
+            if (error) throw error;
+            setMetadata(null);
+        } catch (err) {
+            setError(err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const deleteAllUserBets = async () => {
+        setLoading(true);
+        try {
+            const { error } = await supabase
+                .from('user_bets')
+                .delete()
+                .neq('market_id', -1); // Delete all
+
+            if (error) throw error;
+        } catch (err) {
+            setError(err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchMetadata();
     }, [marketId]);
 
-    return { metadata, loading, error, updateMetadata, refreshMetadata: fetchMetadata, fetchAllMetadata };
+    return {
+        metadata,
+        loading,
+        error,
+        updateMetadata,
+        refreshMetadata: fetchMetadata,
+        fetchAllMetadata,
+        deleteAllMetadata,
+        deleteAllUserBets
+    };
 };
