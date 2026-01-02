@@ -15,7 +15,7 @@ import {
   CrossWindowLoginButton
 } from 'components/sdkDappComponents';
 import { useExtensionLogin } from '@multiversx/sdk-dapp/hooks/login/useExtensionLogin';
-import { nativeAuth } from 'config';
+import { nativeAuth, walletConnectV2ProjectId } from 'config';
 import { RouteNamesEnum } from 'localConstants';
 import { useNavigate } from 'react-router-dom';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
@@ -36,23 +36,28 @@ const WebWalletLoginButton = USE_WEB_WALLET_CROSS_WINDOW
 
 export const Unlock = () => {
   const navigate = useNavigate();
-  const commonProps: CommonPropsType = {
+  const loginProps = {
     callbackRoute: RouteNamesEnum.dashboard,
-    nativeAuth,
+    nativeAuth: true, // Force boolean
     onLoginRedirect: () => {
       navigate(RouteNamesEnum.dashboard);
-    }
+    },
+    logoutRoute: RouteNamesEnum.unlock
   };
 
-  const [initiateLogin] = useExtensionLogin({
-    callbackRoute: commonProps.callbackRoute,
-    nativeAuth: commonProps.nativeAuth,
-    onLoginRedirect: commonProps.onLoginRedirect
+  const [initiateExtensionLogin] = useExtensionLogin({
+    callbackRoute: loginProps.callbackRoute,
+    nativeAuth: loginProps.nativeAuth,
+    onLoginRedirect: loginProps.onLoginRedirect
   });
 
-  const handleExtensionLogin = () => {
-    initiateLogin();
+  const commonProps: any = {
+    callbackRoute: loginProps.callbackRoute,
+    nativeAuth: true,
+    onLoginRedirect: loginProps.onLoginRedirect
   };
+
+  const buttonClassName = 'neon-button py-2.5 px-6 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary text-background hover:shadow-lg transition-all w-full flex items-center justify-center gap-2';
 
   return (
     <AuthRedirectWrapper requireAuth={false} redirectIfLoggedIn={true}>
@@ -83,6 +88,7 @@ export const Unlock = () => {
                   <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 ml-1'>Mobile</span>
                   <WalletConnectLoginButton
                     loginButtonText='xPortal App'
+                    walletConnectV2ProjectId={walletConnectV2ProjectId}
                     {...commonProps}
                   />
                 </div>
@@ -90,8 +96,8 @@ export const Unlock = () => {
                 <div className='flex flex-col gap-2'>
                   <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 ml-1'>Desktop</span>
                   <button
-                    onClick={handleExtensionLogin}
-                    className='neon-button py-2.5 px-6 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary text-background hover:shadow-lg transition-all'
+                    onClick={() => initiateExtensionLogin()}
+                    className={buttonClassName}
                   >
                     DeFi Wallet
                   </button>

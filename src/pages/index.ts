@@ -10,5 +10,6 @@ export * from './Community';
 export * from './Markets/MarketDetails';
 export * from './CreateMarket/CreateMarket';
 export * from './Admin/AdminDashboard';
+export * from './Roadmap/Roadmap';
 
 

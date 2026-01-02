@@ -140,15 +140,44 @@
 
 /* sdk-dapp login buttons overrides */
 .unlock-buttons .dapp-login-button {
-  @apply !bg-primary !text-background !border-none !rounded-xl !py-4 !px-6 !font-bold !uppercase !tracking-widest !text-xs !transition-all !duration-300 !shadow-none !w-full !flex !items-center !justify-center !gap-3;
+  background-color: rgb(var(--color-primary)) !important;
+  color: rgb(var(--color-background)) !important;
+  @apply !border-none !rounded-xl !py-2.5 !px-6 !font-bold !uppercase !tracking-widest !text-[11px] !transition-all !duration-300 !shadow-none !w-full !flex !items-center !justify-center !gap-3;
+}
+
+.unlock-buttons .dapp-login-button *,
+.unlock-buttons .dapp-login-button svg,
+.unlock-buttons .dapp-login-button svg path {
+  color: inherit !important;
+  fill: currentColor !important;
 }
 
 .unlock-buttons .dapp-login-button:hover {
-  background-color: rgb(var(--color-primary));
-  opacity: 0.9;
+  opacity: 0.9 !important;
   @apply !shadow-lg !scale-[1.02];
 }
 
 .unlock-buttons .dapp-login-button:active {
   @apply !scale-95;
+}
+
+/* Fix xPortal/WalletConnect modal contrast in dark mode */
+.dapp-modal-dialog-wrapper,
+.dapp-modal-dialog {
+  color: #000 !important;
+}
+
+.dapp-modal-dialog-wrapper *,
+.dapp-modal-dialog * {
+  color: #000 !important;
+}
+
+/* Ensure the close button is visible */
+.dapp-modal-dialog .btn-close {
+  filter: brightness(0);
+}
+
+/* Keep the loader visible but avoid background issues */
+.dapp-modal-dialog .dapp-loader {
+  border-top-color: rgb(var(--color-secondary)) !important;
 }

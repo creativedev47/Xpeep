@@ -8,7 +8,8 @@ export enum RouteNamesEnum {
   wallet = '/wallet',
   community = '/community',
   createMarket = '/create-market',
-  admin = '/admin'
+  admin = '/admin',
+  roadmap = '/roadmap'
 }
 
 

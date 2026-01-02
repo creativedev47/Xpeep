@@ -31,6 +31,7 @@ export const Header = () => {
       { name: 'Control', route: RouteNamesEnum.admin }
     ] : []),
     { name: 'My Peeps', route: RouteNamesEnum.myBets },
+    { name: 'Roadmap', route: RouteNamesEnum.roadmap },
     { name: 'Wallet', route: RouteNamesEnum.wallet },
     { name: 'Community', route: RouteNamesEnum.community },
   ];

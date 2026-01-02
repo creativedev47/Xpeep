@@ -33,8 +33,8 @@ const AppContent = () => {
         walletConnectV2ProjectId
       }}
       dappConfig={{
-        shouldUseWebViewProvider: true,
-        logoutRoute: RouteNamesEnum.unlock
+        logoutRoute: RouteNamesEnum.unlock,
+        nativeAuth: true
       }}
       customComponents={{
         transactionTracker: {
