@@ -15,14 +15,14 @@ export const HowItWorks = () => {
                     <section className='text-center flex flex-col items-center gap-6'>
                         <div className='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest animate-pulse'>
                             <FontAwesomeIcon icon={faZap} />
-                            <span>Powered by MultiversX Sharding</span>
+                            <span>Powered by MultiversX Devnet</span>
                         </div>
                         <h1 className='text-5xl md:text-7xl font-bold text-primary leading-tight'>
                             Prediction at <br />
                             <span className='text-glow'>Supernova Speed</span>
                         </h1>
                         <p className='text-soft-blue/80 text-lg md:text-xl max-w-2xl text-center'>
-                            xPeep isn't just another prediction market. It's the only platform leveraging
+                            Xpeep isn't just another prediction market. It's the only platform leveraging
                             <span className='text-primary font-bold'> Adaptive State Sharding </span>
                             to deliver sub-second finality and instant resolution.
                         </p>
@@ -34,7 +34,7 @@ export const HowItWorks = () => {
                             <h2 className='text-3xl font-bold text-primary'>The Sharding Advantage</h2>
                             <p className='text-soft-blue/80'>
                                 Traditional prediction markets on legacy chains are slow, expensive, and prone to congestion.
-                                xPeep is built differently. By utilizing MultiversX's sharded architecture, we process
+                                Xpeep is built differently. By utilizing MultiversX's sharded architecture, we process
                                 thousands of transactions per second across parallel shards.
                             </p>
                             <div className='flex flex-col gap-4'>
