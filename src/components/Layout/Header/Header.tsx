@@ -72,14 +72,14 @@ export const Header = () => {
           <FontAwesomeIcon icon={theme === 'light' ? faMoon : faSun} />
         </button>
 
-        <div className='hidden md:flex items-center bg-primary/5 border border-primary/10 rounded-full px-4 py-1.5 focus-within:border-primary/50 transition-colors'>
+        {/* <div className='hidden md:flex items-center bg-primary/5 border border-primary/10 rounded-full px-4 py-1.5 focus-within:border-primary/50 transition-colors'>
           <FontAwesomeIcon icon={faSearch} className='text-primary/30 text-xs' />
           <input
             type='text'
             placeholder='Search events...'
             className='bg-transparent border-none focus:ring-0 text-sm ml-2 w-48 placeholder:text-primary/20 text-primary'
           />
-        </div>
+        </div> */}
 
         {isLoggedIn ? (
           <div className='flex items-center gap-3'>

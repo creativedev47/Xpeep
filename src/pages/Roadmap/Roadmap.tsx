@@ -11,11 +11,13 @@ const roadmapData = [
         icon: faRocket,
         description: 'Foundation & Performance Optimization',
         items: [
-            { text: 'Real-time Market Sync (Supabase Integration)', completed: true },
-            { text: 'Premium Theme-Aware UI (Interstellar Aesthetics)', completed: true },
+            // { text: 'Real-time Market Sync (Supabase Integration)', completed: true },
+            // { text: 'Premium Theme-Aware UI (Interstellar Aesthetics)', completed: true },
             { text: 'Multi-Wallet Matrix (xPortal, Ledger, DeFi Wallet)', completed: true },
             { text: 'Supernova Performance Engine', completed: false, highlight: true },
-            { text: 'Scalable Market Architecture', completed: false }
+            // { text: 'Scalable Market Architecture', completed: false },
+            { text: 'AI-Powered Resolution Agents', completed: false },
+            { text: 'Launch on Devnet', completed: false }
         ]
     },
     {
@@ -25,10 +27,11 @@ const roadmapData = [
         icon: faBrain,
         description: 'AI & Predictive Intelligence',
         items: [
-            { text: 'AI-Powered Resolution Agents', completed: false },
-            { text: 'Predictive Sentiment Analysis for Markets', completed: false },
-            { text: 'Self-Learning Fraud Detection', completed: false },
-            { text: 'Dynamic Liquidity & Automated Market Making', completed: false }
+            // { text: 'AI-Powered Resolution Agents', completed: false },
+            // { text: 'Predictive Sentiment Analysis for Markets', completed: false },
+            // { text: 'Self-Learning Fraud Detection', completed: false },
+            // { text: 'Dynamic Liquidity & Automated Market Making', completed: false },
+            { text: 'COMING SOON', completed: false }
         ]
     },
     {
@@ -38,10 +41,11 @@ const roadmapData = [
         icon: faGlobe,
         description: 'Ecosystem Expansion',
         items: [
-            { text: 'Cross-Chain Prediction Bridges', completed: false },
-            { text: 'DAO Governance & Community Voting', completed: false },
-            { text: 'xPeep Mobile Native Experience', completed: false },
-            { text: 'Institutional API Access (Nova-Nexus)', completed: false }
+            // { text: 'Cross-Chain Prediction Bridges', completed: false },
+            // { text: 'DAO Governance & Community Voting', completed: false },
+            // { text: 'xPeep Mobile Native Experience', completed: false },
+            // { text: 'Institutional API Access (Nova-Nexus)', completed: false }
+            { text: 'COMING SOON', completed: false }
         ]
     },
     {
@@ -51,9 +55,10 @@ const roadmapData = [
         icon: faShieldAlt,
         description: 'Hyper-Scale & Security',
         items: [
-            { text: 'Zero-Knowledge Privacy Layer', completed: false },
-            { text: 'Decentralized Identity Integration', completed: false },
-            { text: 'The Great Convergence (Mainnet v2)', completed: false }
+            // { text: 'Zero-Knowledge Privacy Layer', completed: false },
+            // { text: 'Decentralized Identity Integration', completed: false },
+            // { text: 'The Great Convergence (Mainnet v2)', completed: false },
+            { text: 'COMING SOON', completed: false }
         ]
     }
 ];
@@ -105,9 +110,9 @@ export const Roadmap = () => {
                                             <h3 className='text-2xl md:text-3xl font-bold text-primary tracking-widest'>
                                                 {milestone.quarter}
                                             </h3>
-                                            <p className='text-xs text-primary/40 uppercase font-black tracking-widest leading-tight'>
+                                            {/* <p className='text-xs text-primary/40 uppercase font-black tracking-widest leading-tight'>
                                                 {milestone.description}
-                                            </p>
+                                            </p> */}
 
                                             <ul className={`flex flex-col gap-3 mt-4 w-full ${index % 2 === 0 ? 'md:items-end' : 'md:items-start'}`}>
                                                 {milestone.items.map((item, i) => (

@@ -108,7 +108,7 @@ export const Home = () => {
               </div>
               <h3 className='text-xl font-bold mb-4 text-primary'>Sub-second Speed</h3>
               <p className='text-soft-blue/80 text-sm'>
-                Powered by MultiversX, transactions are settled in seconds with near-zero fees.
+                Powered by MultiversX, transactions are settled in less than a second with near-zero fees.
               </p>
             </div>
             <div className='glass-panel p-8 bg-glow-secondary'>

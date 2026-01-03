@@ -34,6 +34,7 @@ const AppContent = () => {
       }}
       dappConfig={{
         logoutRoute: RouteNamesEnum.unlock,
+        shouldUseWebViewProvider: true,
         nativeAuth: true
       }}
       customComponents={{
