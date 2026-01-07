@@ -8,12 +8,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faBolt, faShieldAlt, faGlobe, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData } from 'hooks/transactions';
 import { useMarketMetadata } from 'hooks/supabase';
+import { useGetAccount } from 'hooks';
 
 export const Home = () => {
   const [trendingMarkets, setTrendingMarkets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { getMarket, getMarketCount } = useGetMarketData();
   const { fetchAllMetadata } = useMarketMetadata();
+  const { address } = useGetAccount();
 
   useEffect(() => {
     const fetchTrending = async () => {
@@ -86,10 +88,10 @@ export const Home = () => {
                   <FontAwesomeIcon icon={faArrowRight} className='ml-2' />
                 </MxLink>
                 <MxLink
-                  to={RouteNamesEnum.unlock}
+                  to={address ? RouteNamesEnum.wallet : RouteNamesEnum.unlock}
                   className='px-8 py-4 rounded-2xl border border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all w-full sm:w-auto text-center'
                 >
-                  Connect Wallet
+                  {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connect Wallet'}
                 </MxLink>
               </div>
             </div>
