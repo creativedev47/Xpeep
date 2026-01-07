@@ -4,3 +4,4 @@ export * from './useGetMarketData';
 export * from './useCreateMarket';
 export * from './useGetUserBets';
 export * from './useResolveMarket';
+export * from './useResetSystem';

@@ -14,8 +14,9 @@ export const HowItWorks = () => {
                     {/* Hero Section */}
                     <section className='text-center flex flex-col items-center gap-6'>
                         <div className='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest animate-pulse'>
-                            <FontAwesomeIcon icon={faZap} />
-                            <span>Powered by MultiversX Devnet</span>
+                            <FontAwesomeIcon icon={faZap} className="text-yellow-400" />
+                            <span>Supernova Protocol: ACTIVE</span>
+                            <div className="w-2 h-2 rounded-full bg-green-400 animate-ping ml-1" />
                         </div>
                         <h1 className='text-5xl md:text-7xl font-bold text-primary leading-tight'>
                             Prediction at <br />

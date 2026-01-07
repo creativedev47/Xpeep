@@ -142,7 +142,7 @@ export const Dashboard = () => {
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-10'>
             {/* Active Bets Table */}
             <div className='lg:col-span-2 flex flex-col gap-6'>
-              <h2 className='text-2xl font-bold text-primary'>Active Bets</h2>
+              <h2 className='text-2xl font-bold text-primary'>Active Peeps</h2>
               <div className='glass-panel overflow-hidden'>
                 {isLoading ? (
                   <div className='p-20 flex flex-col items-center gap-4'>
@@ -150,7 +150,7 @@ export const Dashboard = () => {
                     <p className='text-primary/40 uppercase tracking-widest text-xs font-bold'>Syncing with the chain...</p>
                   </div>
                 ) : activeBetsList.length === 0 ? (
-                  <div className='p-20 text-center text-primary/40 italic'>No active bets found.</div>
+                  <div className='p-20 text-center text-primary/40 italic'>No active peeps found.</div>
                 ) : (
                   <div className='overflow-x-auto'>
                     <table className='w-full text-left'>

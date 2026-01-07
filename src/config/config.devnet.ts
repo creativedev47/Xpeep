@@ -3,8 +3,8 @@ import { EnvironmentsEnum } from 'types';
 export * from './sharedConfig';
 
 export const contractAddress =
-  'erd1qqqqqqqqqqqqqpgqmhdnwv9p5pqz0jv4ttrnakecwx4vrkvyazdsvwsyuf';
-export const API_URL = 'https://devnet-template-api.multiversx.com';
+  'erd1qqqqqqqqqqqqqpgq3mv7juhpm4z60vqsvkt04rc2eegnajn0azdsmwca9g';
+export const API_URL = 'https://devnet-api.multiversx.com';
 export const sampleAuthenticatedDomains = [API_URL];
 export const environment = EnvironmentsEnum.devnet;
 

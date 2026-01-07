@@ -16,12 +16,13 @@ export const MarketDetails = () => {
     const [market, setMarket] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [userWinnings, setUserWinnings] = useState<string | null>(null);
+    const [currentUserBet, setCurrentUserBet] = useState<{ outcome: number, amount: string } | null>(null);
 
     const placeBet = usePlaceBet();
     const resolveMarket = useResolveMarket();
     const claimWinnings = useClaimWinnings();
     const { getMarket, getOutcomeTotal, getParticipantCount } = useGetMarketData();
-    const { getUserBetAmount } = useGetUserBets();
+    const { getUserBetOutcome, getUserBetAmount } = useGetUserBets();
     const isAdmin = useIsAdmin();
 
     const { metadata, loading: metadataLoading } = useMarketMetadata(id ? parseInt(id) : undefined);
@@ -49,15 +50,26 @@ export const MarketDetails = () => {
 
                 const winningOutcome = (data.winning_outcome?.toNumber ? data.winning_outcome.toNumber() : Number(data.winning_outcome)) || metadata?.winning_outcome || 0;
 
-                // Check for user winnings if market is resolved
-                if ((data.status?.name === 'Resolved' || data.status?.toString() === 'Resolved') && winningOutcome > 0) {
-                    // Slight delay for chain indexing if needed
-                    const amount = await getUserBetAmount(parseInt(id), winningOutcome);
-                    if (parseFloat(amount || '0') > 0) {
-                        setUserWinnings(amount || '0');
-                    } else {
-                        setUserWinnings(null);
+                // Check for user bets (Active or Resolved)
+                const userOutcome = await getUserBetOutcome(parseInt(id));
+                if (userOutcome && userOutcome > 0) {
+                    const amount = await getUserBetAmount(parseInt(id), userOutcome);
+                    setCurrentUserBet({
+                        outcome: userOutcome,
+                        amount: amount ? (parseFloat(amount) / 10 ** 18).toFixed(2) : '0'
+                    });
+
+                    // Check for user winnings if market is resolved
+                    if ((data.status?.name === 'Resolved' || data.status?.toString() === 'Resolved') && winningOutcome > 0 && userOutcome === winningOutcome) {
+                        const rawAmount = await getUserBetAmount(parseInt(id), winningOutcome);
+                        if (parseFloat(rawAmount || '0') > 0) {
+                            setUserWinnings(rawAmount || '0');
+                        } else {
+                            setUserWinnings(null);
+                        }
                     }
+                } else {
+                    setCurrentUserBet(null);
                 }
 
                 setMarket({
@@ -82,7 +94,7 @@ export const MarketDetails = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [id, metadata, getMarket, getOutcomeTotal, getParticipantCount, getUserBetAmount, market]);
+    }, [id, metadata, getMarket, getOutcomeTotal, getParticipantCount, getUserBetOutcome, getUserBetAmount, market]);
 
     useEffect(() => {
         fetchMarket();
@@ -286,74 +298,124 @@ export const MarketDetails = () => {
                                     </>
                                 ) : (
                                     <>
-                                        {isAdmin ? (
-                                            <div className='flex flex-col items-center justify-center py-10 gap-4 text-center'>
-                                                <div className='w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center text-primary/20'>
-                                                    <FontAwesomeIcon icon={faBolt} size='2x' />
+                                        {/* User Feedback Panel */}
+                                        {currentUserBet ? (
+                                            <div className='mb-6 relative overflow-hidden rounded-2xl border border-primary/20 bg-background/50 backdrop-blur-md shadow-lg group'>
+                                                {/* Decorative background element */}
+                                                <div className='absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none' />
+
+                                                <div className='relative p-6 flex flex-col gap-6'>
+                                                    {/* Header */}
+                                                    <div className='flex items-center gap-3 border-b border-primary/10 pb-4'>
+                                                        <div className='p-2 rounded-lg bg-yellow-400/10 text-yellow-400'>
+                                                            <FontAwesomeIcon icon={faBolt} />
+                                                        </div>
+                                                        <span className='text-xs font-bold uppercase tracking-[0.2em] text-primary/90'>
+                                                            Your Active Peep
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Main Stats Card */}
+                                                    <div className='grid grid-cols-2 gap-4'>
+                                                        <div className='flex flex-col gap-1 p-4 rounded-xl bg-primary/5 border border-primary/5 transition-colors group-hover:border-primary/20'>
+                                                            <span className='text-[10px] uppercase font-bold text-primary/40 tracking-wider'>Selected Outcome</span>
+                                                            <span className={`text-2xl font-black uppercase tracking-tight ${currentUserBet.outcome === 1 ? 'text-accent' : 'text-warning'}`}>
+                                                                {currentUserBet.outcome === 1 ? 'YES' : 'NO'}
+                                                            </span>
+                                                        </div>
+
+                                                        <div className='flex flex-col gap-1 p-4 rounded-xl bg-primary/5 border border-primary/5 transition-colors group-hover:border-primary/20'>
+                                                            <span className='text-[10px] uppercase font-bold text-primary/40 tracking-wider'>Staked (EGLD)</span>
+                                                            <div className='flex items-baseline gap-1'>
+                                                                <span className='text-2xl font-mono font-bold text-primary'>
+                                                                    {currentUserBet.amount}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Footer message */}
+                                                    <div className='flex items-center justify-center gap-2 pt-2 opacity-50'>
+                                                        <span className='w-1 h-1 rounded-full bg-primary/50' />
+                                                        <p className='text-[10px] text-primary italic font-medium'>
+                                                            Ticket Confirmed & Active
+                                                        </p>
+                                                        <span className='w-1 h-1 rounded-full bg-primary/50' />
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className='text-lg font-bold text-primary mb-2 uppercase tracking-wider'>Admin View</h3>
-                                                    <p className='text-xs text-soft-blue/60'>Administrators are restricted from participating in markets to ensure fair resolution.</p>
-                                                </div>
-                                                <div className='w-full h-[1px] bg-primary/5 my-4' />
-                                                <p className='text-[10px] text-primary/40 uppercase font-bold tracking-widest'>Use the Resolution Panel on the left to settle this market.</p>
                                             </div>
                                         ) : (
                                             <>
-                                                <h3 className='text-lg font-bold mb-6 uppercase tracking-wider text-primary'>Place your Peep</h3>
-
-                                                <div className='flex flex-col gap-4 mb-8'>
-                                                    {market.outcomes.map((outcome: any) => (
-                                                        <button
-                                                            key={outcome.name}
-                                                            onClick={() => setSelectedOutcome(outcome.id)}
-                                                            className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${selectedOutcome === outcome.id
-                                                                ? `border-primary bg-primary/10 scale-[1.05] shadow-md`
-                                                                : `border-primary/5 bg-primary/5 hover:scale-[1.02]`
-                                                                }`}
-                                                        >
-                                                            <span className={`font-bold text-primary`}>{outcome.name}</span>
-                                                            <span className='text-xs font-mono text-primary/60'>Odds: {outcome.odds}x</span>
-                                                        </button>
-                                                    ))}
-                                                </div>
-
-                                                <div className='flex flex-col gap-2 mb-6'>
-                                                    <label className='text-[10px] text-primary/40 uppercase font-bold ml-2'>Stake Amount (EGLD)</label>
-                                                    <div className='relative'>
-                                                        <input
-                                                            type="number"
-                                                            className='w-full bg-primary/5 border border-primary/10 rounded-2xl px-4 py-3 focus:border-primary/50 transition-colors font-mono text-primary'
-                                                            value={stakeAmount}
-                                                            onChange={(e) => setStakeAmount(e.target.value)}
-                                                        />
-                                                        <span className='absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary/20'>EGLD</span>
-                                                    </div>
-                                                </div>
-
-                                                <button
-                                                    onClick={handlePlaceBet}
-                                                    className='w-full neon-button bg-primary text-background font-bold py-4 rounded-2xl uppercase tracking-widest hover:shadow-md'
-                                                >
-                                                    <FontAwesomeIcon icon={faBolt} className='mr-2' />
-                                                    Confirm Peep
-                                                </button>
-
-                                                {stakeAmount && selectedOutcome !== null && (
-                                                    <div className='mt-4 p-4 rounded-xl bg-primary/5 border border-primary/10'>
-                                                        <div className='flex justify-between items-center mb-1'>
-                                                            <span className='text-[10px] uppercase font-bold text-primary/40'>Potential Payout</span>
-                                                            <span className='text-sm font-bold text-primary'>
-                                                                {(parseFloat(stakeAmount) * parseFloat(market.outcomes[selectedOutcome - 1].odds)).toFixed(2)} EGLD
-                                                            </span>
+                                                {isAdmin ? (
+                                                    <div className='flex flex-col items-center justify-center py-10 gap-4 text-center'>
+                                                        <div className='w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center text-primary/20'>
+                                                            <FontAwesomeIcon icon={faBolt} size='2x' />
                                                         </div>
-                                                        <p className='text-[8px] text-primary/20 italic'>* Odds are dynamic and may change until the market closes.</p>
+                                                        <div>
+                                                            <h3 className='text-lg font-bold text-primary mb-2 uppercase tracking-wider'>Admin View</h3>
+                                                            <p className='text-xs text-soft-blue/60'>Administrators are restricted from participating in markets to ensure fair resolution.</p>
+                                                        </div>
+                                                        <div className='w-full h-[1px] bg-primary/5 my-4' />
+                                                        <p className='text-[10px] text-primary/40 uppercase font-bold tracking-widest'>Use the Resolution Panel on the left to settle this market.</p>
                                                     </div>
-                                                )}
+                                                ) : (
+                                                    <>
+                                                        <h3 className='text-lg font-bold mb-6 uppercase tracking-wider text-primary'>Place your Peep</h3>
 
-                                                <p className='text-[10px] text-primary/20 text-center mt-4'>
-                                                    Network Fee: ~0.001 EGLD
-                                                </p>
+                                                        <div className='flex flex-col gap-4 mb-8'>
+                                                            {market.outcomes.map((outcome: any) => (
+                                                                <button
+                                                                    key={outcome.name}
+                                                                    onClick={() => setSelectedOutcome(outcome.id)}
+                                                                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${selectedOutcome === outcome.id
+                                                                        ? `border-primary bg-primary/10 scale-[1.05] shadow-md`
+                                                                        : `border-primary/5 bg-primary/5 hover:scale-[1.02]`
+                                                                        }`}
+                                                                >
+                                                                    <span className={`font-bold text-primary`}>{outcome.name}</span>
+                                                                    <span className='text-xs font-mono text-primary/60'>Odds: {outcome.odds}x</span>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+
+                                                        <div className='flex flex-col gap-2 mb-6'>
+                                                            <label className='text-[10px] text-primary/40 uppercase font-bold ml-2'>Stake Amount (EGLD)</label>
+                                                            <div className='relative'>
+                                                                <input
+                                                                    type="number"
+                                                                    className='w-full bg-primary/5 border border-primary/10 rounded-2xl px-4 py-3 focus:border-primary/50 transition-colors font-mono text-primary'
+                                                                    value={stakeAmount}
+                                                                    onChange={(e) => setStakeAmount(e.target.value)}
+                                                                />
+                                                                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary/20'>EGLD</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <button
+                                                            onClick={handlePlaceBet}
+                                                            className='w-full neon-button bg-primary text-background font-bold py-4 rounded-2xl uppercase tracking-widest hover:shadow-md'
+                                                        >
+                                                            <FontAwesomeIcon icon={faBolt} className='mr-2' />
+                                                            Confirm Peep
+                                                        </button>
+
+                                                        {stakeAmount && selectedOutcome !== null && (
+                                                            <div className='mt-4 p-4 rounded-xl bg-primary/5 border border-primary/10'>
+                                                                <div className='flex justify-between items-center mb-1'>
+                                                                    <span className='text-[10px] uppercase font-bold text-primary/40'>Potential Payout</span>
+                                                                    <span className='text-sm font-bold text-primary'>
+                                                                        {(parseFloat(stakeAmount) * (market.outcomes.find((o: any) => o.id === selectedOutcome)?.odds || 0)).toFixed(2)} EGLD
+                                                                    </span>
+                                                                </div>
+                                                                <p className='text-[8px] text-primary/20 italic'>* Odds are dynamic and may change until the market closes.</p>
+                                                            </div>
+                                                        )}
+
+                                                        <p className='text-[10px] text-primary/20 text-center mt-4'>
+                                                            Network Fee: ~0.001 EGLD
+                                                        </p>
+                                                    </>
+                                                )}
                                             </>
                                         )}
                                     </>
@@ -363,8 +425,9 @@ export const MarketDetails = () => {
                     </div>
                 </div>
 
-            </PageWrapper>
-        </AuthRedirectWrapper>
+
+            </PageWrapper >
+        </AuthRedirectWrapper >
     );
 };
 

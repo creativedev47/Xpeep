@@ -38,9 +38,9 @@ export const usePlaceBet = () => {
         await sendTransactions({
             transactions: [placeBetTransaction],
             transactionsDisplayInfo: {
-                processingMessage: 'Processing Bet transaction',
-                errorMessage: 'An error has occurred during betting',
-                successMessage: 'Bet placed successfully! Peep the future!'
+                processingMessage: 'Processing via Supernova Protocol... ⚡',
+                errorMessage: 'An error has occurred during peeping',
+                successMessage: 'Peep placed successfully! Peep the future!'
             },
             redirectAfterSign: false,
             callbackRoute: RouteNamesEnum.dashboard

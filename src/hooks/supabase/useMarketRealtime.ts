@@ -22,7 +22,18 @@ export const useMarketRealtime = (marketId: number | undefined, onUpdate: () => 
             )
             .subscribe();
 
+        const initialTimer = setTimeout(() => {
+            onUpdate();
+        }, 500);
+
+        // Supernova Turbo Mode: Poll every 1s to simulate sub-second finality and ensure data consistency
+        const turboInterval = setInterval(() => {
+            onUpdate();
+        }, 1000);
+
         return () => {
+            clearTimeout(initialTimer);
+            clearInterval(turboInterval);
             supabase.removeChannel(channel);
         };
     }, [marketId, onUpdate]);

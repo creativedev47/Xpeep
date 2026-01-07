@@ -243,6 +243,22 @@
                     "multi_result": true
                 }
             ]
+        },
+        {
+            "name": "resetAll",
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "getSupernovaStatus",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
         }
     ],
     "esdtAttributes": [],

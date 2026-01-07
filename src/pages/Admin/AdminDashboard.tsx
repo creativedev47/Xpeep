@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBolt, faSpinner, faCheckCircle, faClock, faChartLine, faUsers } from '@fortawesome/free-solid-svg-icons';
-import { useGetMarketData, useResolveMarket } from 'hooks/transactions';
+import { useGetMarketData, useResolveMarket, useResetSystem } from 'hooks/transactions';
 import { useIsAdmin, useMarketMetadata } from 'hooks';
 import { useResolvedHistory } from 'hooks/supabase';
 import { RouteNamesEnum } from 'localConstants';
@@ -95,6 +95,8 @@ export const AdminDashboard = () => {
         }
     };
 
+    const [refreshKey, setRefreshKey] = useState(0);
+
     useEffect(() => {
         fetchMarkets();
     }, []);
@@ -102,8 +104,16 @@ export const AdminDashboard = () => {
     const handleResolve = async (id: number, outcome: number) => {
         if (window.confirm(`Are you sure you want to resolve Market #${id} as ${outcome === 1 ? 'YES' : 'NO'}?`)) {
             await resolveMarket(id, outcome);
-            setTimeout(fetchMarkets, 2000); // Refresh after tx
+            setTimeout(() => {
+                fetchMarkets();
+                setRefreshKey(prev => prev + 1); // Refresh history after resolution too
+            }, 2000);
         }
+    };
+
+    const handleWipeSuccess = () => {
+        fetchMarkets();
+        setRefreshKey(prev => prev + 1);
     };
 
     if (!isAdmin) {
@@ -191,9 +201,9 @@ export const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <ResolvedHistorySection />
+                    <ResolvedHistorySection key={refreshKey} />
 
-                    <MaintenanceSection onWipeSuccess={fetchMarkets} />
+                    <MaintenanceSection onWipeSuccess={handleWipeSuccess} />
                 </div>
             </PageWrapper>
         </AuthRedirectWrapper>
@@ -203,11 +213,15 @@ export const AdminDashboard = () => {
 const MaintenanceSection = ({ onWipeSuccess }: { onWipeSuccess: () => void }) => {
     const { deleteAllMetadata, deleteAllUserBets, loading } = useMarketMetadata();
 
+    const resetSystem = useResetSystem();
+    const [wipeLoading, setWipeLoading] = useState(false);
+
     const handleWipe = async () => {
         if (!window.confirm('🚨 NUCLEAR OPTION 🚨\n\nThis will permanently delete ALL market metadata and bet history from Supabase. This action is irreversible.\n\nAre you ABSOLUTELY sure?')) {
             return;
         }
 
+        setWipeLoading(true);
         try {
             await Promise.all([
                 deleteAllMetadata(),
@@ -217,7 +231,23 @@ const MaintenanceSection = ({ onWipeSuccess }: { onWipeSuccess: () => void }) =>
             onWipeSuccess();
         } catch (err) {
             console.error('Wipe failed', err);
-            alert('Failed to wipe data. check console.');
+            alert('Failed to wipe data.');
+        } finally {
+            setWipeLoading(false);
+        }
+    };
+
+    const handleReset = async () => {
+        if (!window.confirm('⚠️ DANGER: COMPLETE SYSTEM RESET ⚠️\n\nThis will:\n1. Delete ALL data from Supabase\n2. RESET the Smart Contract state (creating new epoch)\n3. Clear ALL User Bets and Markets on-chain\n\nThis is effectively a factory reset. Are you sure?')) {
+            return;
+        }
+
+        try {
+            await resetSystem();
+            onWipeSuccess();
+        } catch (err) {
+            console.error('Reset failed', err);
+            alert('Failed to reset system.');
         }
     };
 
@@ -228,16 +258,32 @@ const MaintenanceSection = ({ onWipeSuccess }: { onWipeSuccess: () => void }) =>
                 <p className='text-warning/60 text-sm'>Use these tools to reset or clear corrupted data from the visibility layer.</p>
             </div>
 
-            <div className='flex items-center gap-4'>
-                <button
-                    onClick={handleWipe}
-                    disabled={loading}
-                    className='px-8 py-3 rounded-2xl bg-warning text-background font-bold text-sm uppercase tracking-widest hover:shadow-lg transition-all'
-                >
-                    {loading ? 'Wiping...' : 'Wipe All History'}
-                </button>
-                <div className='flex-1'>
-                    <p className='text-[10px] text-warning/40 uppercase font-bold'>Warning: This only affects the frontend visibility layer (Supabase). Contract state remains on-chain.</p>
+            <div className='flex flex-col gap-4'>
+                <div className='flex items-center gap-4'>
+                    <button
+                        onClick={handleWipe}
+                        disabled={wipeLoading}
+                        className='px-8 py-3 rounded-2xl bg-warning/20 text-warning border border-warning/50 font-bold text-sm uppercase tracking-widest hover:bg-warning/30 transition-all'
+                    >
+                        {wipeLoading ? 'Wiping...' : 'Wipe All History'}
+                    </button>
+                    <div className='flex-1'>
+                        <p className='text-[10px] text-warning/40 uppercase font-bold'>Only affects frontend visibility (Supabase). Contract state remains.</p>
+                    </div>
+                </div>
+
+                <div className='w-full h-[1px] bg-warning/10 my-2' />
+
+                <div className='flex items-center gap-4'>
+                    <button
+                        onClick={handleReset}
+                        className='px-8 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm uppercase tracking-widest hover:bg-red-600 hover:shadow-lg transition-all shadow-red-500/20 shadow-md'
+                    >
+                        DELETE ALL
+                    </button>
+                    <div className='flex-1'>
+                        <p className='text-[10px] text-red-500/60 uppercase font-bold'>Factory Reset: Wipes Contract State + Frontend. Irreversible.</p>
+                    </div>
                 </div>
             </div>
         </div>
