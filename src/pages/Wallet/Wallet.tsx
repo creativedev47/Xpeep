@@ -2,7 +2,7 @@ import React from 'react';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { useGetAccountInfo, useProfile } from 'hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faWallet, faArrowUp, faArrowDown, faExchangeAlt, faCoins, faUserEdit, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faWallet, faArrowUp, faArrowDown, faExchangeAlt, faCoins, faUserEdit, faCheck, faTimes, faCopy } from '@fortawesome/free-solid-svg-icons';
 import { API_URL } from 'config';
 export const Wallet = () => {
     const { address, account } = useGetAccountInfo();
@@ -135,13 +135,18 @@ export const Wallet = () => {
                                     <span className='text-4xl font-bold text-primary'>{formattedBalance} EGLD</span>
                                     <span className='text-sm text-primary/60 font-mono'>~$ {usdValue} USD</span>
                                 </div>
-                                <div className='flex flex-col gap-2'>
+                                <div className='flex flex-col gap-2 w-full'>
                                     <span className='text-[10px] text-primary/40 uppercase font-bold'>Address</span>
-                                    <div className='flex items-center justify-between bg-black/5 rounded-xl px-4 py-2 border border-black/5'>
-                                        <span className='text-xs font-mono text-soft-blue truncate mr-4'>{address}</span>
-                                        <button className='text-primary hover:text-primary/60 transition-colors' onClick={() => navigator.clipboard.writeText(address)}>
-                                            <FontAwesomeIcon icon={faExchangeAlt} size='xs' />
-                                        </button>
+                                    <div className='flex items-center justify-between bg-black/5 rounded-xl px-4 py-3 border border-black/5 group hover:border-primary/20 transition-all'>
+                                        <div className='flex flex-col overflow-hidden'>
+                                            <span className='md:hidden text-sm font-mono text-soft-blue font-bold'>
+                                                {address ? `${address.substring(0, 10)}...${address.substring(address.length - 10)}` : '...'}
+                                            </span>
+                                            <span className='hidden md:block text-xs font-mono text-soft-blue truncate mr-4'>
+                                                {address}
+                                            </span>
+                                        </div>
+                                        <CopyButton text={address} />
                                     </div>
                                 </div>
                             </div>
@@ -292,5 +297,27 @@ const ActivityItem = ({ type, amount, time }: any) => (
         </span>
     </div>
 );
+
+const CopyButton = ({ text }: { text: string }) => {
+    const [copied, setCopied] = React.useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <button
+            onClick={handleCopy}
+            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${copied
+                    ? 'bg-green-500 text-white shadow-lg scale-105'
+                    : 'bg-primary/10 text-primary hover:bg-primary hover:text-white active:scale-95'
+                }`}
+        >
+            <FontAwesomeIcon icon={copied ? faCheck : faCopy} size='sm' />
+        </button>
+    );
+};
 
 
