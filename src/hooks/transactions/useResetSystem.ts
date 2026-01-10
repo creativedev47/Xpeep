@@ -13,8 +13,11 @@ export const useResetSystem = () => {
     return async () => {
         // 1. Wipe Supabase (Frontend Visibility)
         try {
-            await supabase.from('markets_metadata').delete().neq('market_id', -1); // Delete all
-            await supabase.from('user_bets').delete().neq('market_id', -1); // Delete all bets
+            // Delete all rows from Supabase tables
+            await supabase.from('markets_metadata').delete().neq('id', 0); // Delete all
+            await supabase.from('user_peeps').delete().neq('user_address', '0'); // Delete all
+            await supabase.from('activity_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+            // Note: Profiles are kept to preserve user history/settings if desired, or can be wiped too.
             console.log('Supabase wipe complete');
         } catch (err) {
             console.error('Failed to wipe Supabase', err);

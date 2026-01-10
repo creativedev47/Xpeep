@@ -134,13 +134,13 @@ export const Dashboard = () => {
           {/* Stats Grid */}
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
             <StatCard icon={faWallet} label="Wallet Balance" value={`${formattedBalance} EGLD`} color="text-primary" />
-            <StatCard icon={faTrophy} label="Active Bets" value={stats.activeBets.toString()} color="text-primary" />
+            <StatCard icon={faTrophy} label="Active Peeps" value={stats.activeBets.toString()} color="text-primary" />
             <StatCard icon={faChartLine} label="Total Staked" value={`${stats.totalStaked} EGLD`} color="text-primary" />
             <StatCard icon={faPercentage} label="Yield APY" value={`${stats.yieldApy}%`} color="text-primary" />
           </div>
 
           <div className='grid grid-cols-1 lg:grid-cols-3 gap-10'>
-            {/* Active Bets Table */}
+            {/* Active Peeps Table */}
             <div className='lg:col-span-2 flex flex-col gap-6'>
               <h2 className='text-2xl font-bold text-primary'>Active Peeps</h2>
               <div className='glass-panel overflow-hidden'>
@@ -157,7 +157,7 @@ export const Dashboard = () => {
                       <thead className='bg-primary/5 border-b border-primary/10'>
                         <tr>
                           <th className='px-6 py-5 text-[10px] uppercase font-bold text-primary/40 tracking-widest'>Event</th>
-                          <th className='px-6 py-5 text-[10px] uppercase font-bold text-primary/40 tracking-widest'>Your Bet</th>
+                          <th className='px-6 py-5 text-[10px] uppercase font-bold text-primary/40 tracking-widest'>Your Peep</th>
                           <th className='px-6 py-5 text-[10px] uppercase font-bold text-primary/40 tracking-widest'>Total Pool</th>
                           <th className='px-6 py-5 text-[10px] uppercase font-bold text-primary/40 tracking-widest'>Ends</th>
                         </tr>

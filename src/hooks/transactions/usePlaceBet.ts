@@ -6,15 +6,20 @@ import { RouteNamesEnum } from 'localConstants';
 import { useGetAccount } from 'hooks/sdkDappHooks';
 
 import { supabase } from 'utils/supabase';
+import { useActivityLogger } from 'hooks/useActivityLogger';
 
 export const usePlaceBet = () => {
     const { address } = useGetAccount();
+    const { logPeep, ensureProfileExists } = useActivityLogger();
 
     return async (marketId: number, outcome: number, amount: string) => {
         // Save bet to Supabase
         try {
             if (address) {
-                await supabase.from('user_bets').insert({
+                // Ensure user profile exists first to avoid FK violation
+                await ensureProfileExists();
+
+                await supabase.from('user_peeps').insert({
                     user_address: address,
                     market_id: marketId,
                     outcome,
@@ -24,6 +29,9 @@ export const usePlaceBet = () => {
         } catch (err) {
             console.error('Failed to save bet to Supabase', err);
         }
+
+        // Log Activity
+        logPeep(marketId, amount, outcome === 1 ? 'YES' : 'NO', `Market #${marketId}`);
 
         const placeBetTransaction = smartContract.methodsExplicit
             .placeBet([new U64Value(marketId), new U8Value(outcome)])

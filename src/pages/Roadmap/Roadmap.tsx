@@ -16,8 +16,8 @@ const roadmapData = [
             { text: 'Multi-Wallet Matrix (xPortal, Ledger, DeFi Wallet)', completed: true },
             { text: 'Supernova Performance Engine', completed: true },
             // { text: 'Scalable Market Architecture', completed: false },
-            { text: 'AI-Powered Resolution Agents', completed: false, highlight: true },
-            { text: 'Launch on Devnet', completed: false }
+            { text: 'AI-Powered Resolution Agents', completed: true },
+            { text: 'Launch on Devnet', completed: false, highlight: true }
         ]
     },
     {

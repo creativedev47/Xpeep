@@ -3,7 +3,7 @@ import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { useGetAccountInfo, useProfile } from 'hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWallet, faArrowUp, faArrowDown, faExchangeAlt, faCoins, faUserEdit, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
-
+import { API_URL } from 'config';
 export const Wallet = () => {
     const { address, account } = useGetAccountInfo();
     const { profile, updateProfile, loading: profileLoading } = useProfile(address);
@@ -27,8 +27,83 @@ export const Wallet = () => {
         }
     };
 
+    const [egldPrice, setEgldPrice] = React.useState<number>(0);
+    const [tokens, setTokens] = React.useState<any[]>([]);
+    const [activities, setActivities] = React.useState<any[]>([]);
+
+    const fetchData = React.useCallback(async () => {
+        try {
+            // Fetch EGLD Price
+            const priceRes = await fetch('https://api.multiversx.com/economics');
+            const priceData = await priceRes.json();
+            if (priceData.price) {
+                setEgldPrice(priceData.price);
+            }
+
+            // Fetch Wallet Tokens & Activity
+            if (address) {
+                const tokensRes = await fetch(`${API_URL}/accounts/${address}/tokens`);
+                const tokensData = await tokensRes.json();
+                setTokens(tokensData);
+
+                // Fetch Activity from Supabase
+                const { data: activityData } = await import('utils/supabase').then(mod =>
+                    mod.supabase
+                        .from('activity_logs')
+                        .select('*')
+                        .eq('user_address', address)
+                        .order('created_at', { ascending: false })
+                        .limit(10)
+                );
+                if (activityData) setActivities(activityData);
+            }
+        } catch (error) {
+            console.error('Failed to fetch wallet data', error);
+        }
+    }, [address]);
+
+    React.useEffect(() => {
+        fetchData();
+
+        // Poll every minute
+        const interval = setInterval(fetchData, 60000);
+
+        // Realtime Subscription
+        let channel: any;
+        const setupRealtime = async () => {
+            if (!address) return;
+            const { supabase } = await import('utils/supabase');
+
+            channel = supabase
+                .channel(`realtime_activity_${address}`)
+                .on(
+                    'postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'activity_logs',
+                        filter: `user_address=eq.${address}`
+                    },
+                    (payload) => {
+                        console.log('Realtime activity detected:', payload);
+                        fetchData();
+                    }
+                )
+                .subscribe();
+        };
+
+        setupRealtime();
+
+        return () => {
+            clearInterval(interval);
+            if (channel) import('utils/supabase').then(mod => mod.supabase.removeChannel(channel));
+        };
+    }, [fetchData, address]);
+
     const formattedBalance = (parseFloat(account.balance) / 10 ** 18).toFixed(4);
-    const usdValue = (parseFloat(formattedBalance) * 50).toFixed(2); // Assuming $50/EGLD for devnet visualization
+
+    // Use real price or fallback to 0 if loading/failed
+    const usdValue = (parseFloat(formattedBalance) * egldPrice).toFixed(2);
 
     return (
         <AuthRedirectWrapper requireAuth={true}>
@@ -130,7 +205,18 @@ export const Wallet = () => {
                                 </div>
                                 <div className='flex flex-col gap-4'>
                                     <AssetItem name="MultiversX" symbol="EGLD" balance={formattedBalance} value={usdValue} />
-                                    <AssetItem name="USD Coin" symbol="USDC" balance="0.00" value="0.00" />
+                                    {tokens.map((token: any) => (
+                                        <AssetItem
+                                            key={token.identifier}
+                                            name={token.name}
+                                            symbol={token.ticker}
+                                            balance={(parseFloat(token.balance) / 10 ** token.decimals).toFixed(4)}
+                                            value={(parseFloat(token.balance) / 10 ** token.decimals * (token.price || 0)).toFixed(2)}
+                                        />
+                                    ))}
+                                    {tokens.length === 0 && (
+                                        <p className="text-center text-xs text-primary/40 italic py-4">No other assets found.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -149,9 +235,17 @@ export const Wallet = () => {
                             <div className='glass-panel p-6'>
                                 <h3 className='text-lg font-bold mb-6 text-primary'>Recent Activity</h3>
                                 <div className='flex flex-col gap-4'>
-                                    <ActivityItem type="Peep Placed" amount="-1.0 EGLD" time="2h ago" />
-                                    <ActivityItem type="Claimed" amount="+4.5 EGLD" time="1d ago" />
-                                    <ActivityItem type="Received" amount="+10.0 EGLD" time="3d ago" />
+                                    {activities.map((activity: any) => (
+                                        <ActivityItem
+                                            key={activity.id}
+                                            type={activity.action_type.replace('_', ' ')}
+                                            amount={activity.details.amount || ''}
+                                            time={new Date(activity.created_at).toLocaleDateString()}
+                                        />
+                                    ))}
+                                    {activities.length === 0 && (
+                                        <p className="text-center text-xs text-primary/40 italic">No recent activity.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>

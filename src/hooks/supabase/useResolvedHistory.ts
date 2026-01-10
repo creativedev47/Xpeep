@@ -13,7 +13,7 @@ export const useResolvedHistory = (userAddress?: string) => {
             if (userAddress) {
                 // First get the market IDs the user participated in
                 const { data: userBets, error: betsError } = await supabase
-                    .from('user_bets')
+                    .from('user_peeps')
                     .select('market_id')
                     .eq('user_address', userAddress);
 
