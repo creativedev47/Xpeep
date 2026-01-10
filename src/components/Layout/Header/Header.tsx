@@ -4,7 +4,8 @@ import { MxLink } from 'components/MxLink';
 import { logout } from 'helpers';
 import { useGetIsLoggedIn, useGetAccountInfo } from 'hooks';
 import { RouteNamesEnum } from 'localConstants';
-import { useMatch } from 'react-router-dom';
+import { useMatch, useNavigate } from 'react-router-dom';
+
 import { Logo } from 'components/Logo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faWallet, faUserCircle, faSun, faMoon, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -15,12 +16,13 @@ export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { address, account } = useGetAccountInfo();
   const isUnlockRoute = Boolean(useMatch(RouteNamesEnum.unlock));
+  const navigate = useNavigate();
   const isAdmin = useIsAdmin();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     sessionStorage.clear();
-    logout(`${window.location.origin}/unlock`, undefined, false);
+    logout(`${window.location.origin}/unlock`, () => navigate(RouteNamesEnum.unlock), false);
   };
 
   const navItems = [

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faClock, faFileAlt, faLock, faBolt } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faClock, faFileAlt, faLock, faBolt, faMagic, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useCreateMarket } from 'hooks/transactions';
 import { useMarketMetadata } from 'hooks/supabase';
 import { useIsAdmin } from 'hooks/useIsAdmin';
 import { MxLink } from 'components/MxLink';
 import { RouteNamesEnum } from 'localConstants';
 import { PageNotFound } from 'pages/PageNotFound';
+import { generateMarketData } from 'utils/ai/gemini';
 
 export const CreateMarket = () => {
     const [description, setDescription] = useState('');
@@ -15,6 +16,11 @@ export const CreateMarket = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [newCategory, setNewCategory] = useState('');
     const [existingCategories, setExistingCategories] = useState<string[]>([]);
+
+    // AI State
+    const [aiPrompt, setAiPrompt] = useState('');
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState<string | null>(null);
 
     const { sendCreateMarket } = useCreateMarket();
     const { fetchAllMetadata } = useMarketMetadata();
@@ -30,6 +36,40 @@ export const CreateMarket = () => {
         };
         loadCategories();
     }, []);
+
+    const handleAIGenerate = async () => {
+        if (!aiPrompt.trim()) return;
+
+        setAiLoading(true);
+        setAiError(null);
+
+        try {
+            const data = await generateMarketData(aiPrompt);
+
+            // Populate form
+            setDescription(data.description); // Using description for the main text
+
+            // Format category (try to match existing or set new)
+            const matchedCat = existingCategories.find(c => c.toLowerCase() === data.category.toLowerCase());
+            if (matchedCat) {
+                setSelectedCategory(matchedCat);
+                setNewCategory('');
+            } else {
+                setSelectedCategory('');
+                setNewCategory(data.category);
+            }
+
+            // Set end time (ensure it's in local datetime-local format: YYYY-MM-DDTHH:mm)
+            const date = new Date(data.endDate);
+            const localIso = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+            setEndTime(localIso);
+
+        } catch (err: any) {
+            setAiError(err.message || "Failed to generate market.");
+        } finally {
+            setAiLoading(false);
+        }
+    };
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,6 +96,37 @@ export const CreateMarket = () => {
                         <div>
                             <h1 className='text-4xl font-bold mb-2 text-primary'>Create Market</h1>
                             <p className='text-soft-blue/80'>Define the future. Set up a new prediction market.</p>
+                        </div>
+
+                        {/* AI Architect Section */}
+                        <div className='glass-panel p-6 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20'>
+                            <div className='flex items-center gap-3 mb-4'>
+                                <div className='w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary animate-pulse'>
+                                    <FontAwesomeIcon icon={faMagic} />
+                                </div>
+                                <h3 className='text-lg font-bold text-primary'>AI Architect</h3>
+                            </div>
+                            <div className='flex gap-3'>
+                                <input
+                                    type="text"
+                                    placeholder='e.g. Will GTA 6 be delayed?'
+                                    className='flex-1 bg-background/50 border border-primary/20 rounded-xl px-4 py-3 focus:border-primary/50 transition-colors text-primary placeholder:text-primary/30'
+                                    value={aiPrompt}
+                                    onChange={(e) => setAiPrompt(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAIGenerate()}
+                                />
+                                <button
+                                    onClick={handleAIGenerate}
+                                    disabled={aiLoading || !aiPrompt.trim()}
+                                    className={`px-6 rounded-xl font-bold uppercase tracking-widest text-xs transition-all flex items-center gap-2 ${aiLoading ? 'bg-primary/50 cursor-not-allowed' : 'bg-primary text-background hover:shadow-lg hover:scale-105'}`}
+                                >
+                                    {aiLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faMagic} />}
+                                    {aiLoading ? 'Thinking...' : 'Generate'}
+                                </button>
+                            </div>
+                            {aiError && (
+                                <p className='text-red-400 text-xs mt-2 font-bold'>{aiError}</p>
+                            )}
                         </div>
 
                         <form onSubmit={handleCreate} className='glass-panel p-8 flex flex-col gap-6 bg-glow-purple'>

@@ -8,6 +8,7 @@ import { RouteNamesEnum } from 'localConstants';
 import { usePlaceBet, useGetMarketData, useResolveMarket, useGetUserBets, useClaimWinnings } from 'hooks/transactions';
 import { useIsAdmin } from 'hooks/useIsAdmin';
 import { useMarketMetadata, useMarketRealtime } from 'hooks/supabase';
+import { PeepInsights } from 'components/AI/PeepInsights';
 
 export const MarketDetails = () => {
     const { id } = useParams();
@@ -236,6 +237,15 @@ export const MarketDetails = () => {
 
                         {/* Sidebar: Betting OR Results */}
                         <div className='flex flex-col gap-6'>
+                            {/* AI Analyst Module */}
+                            {!isResolved && (
+                                <PeepInsights
+                                    title={market.title}
+                                    description={market.description || market.title}
+                                    marketId={id || '0'}
+                                />
+                            )}
+
                             <div className='glass-panel p-6 border-primary/30'>
                                 {isResolved ? (
                                     <>

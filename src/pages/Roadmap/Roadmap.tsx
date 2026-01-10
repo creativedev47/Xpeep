@@ -14,9 +14,9 @@ const roadmapData = [
             // { text: 'Real-time Market Sync (Supabase Integration)', completed: true },
             // { text: 'Premium Theme-Aware UI (Interstellar Aesthetics)', completed: true },
             { text: 'Multi-Wallet Matrix (xPortal, Ledger, DeFi Wallet)', completed: true },
-            { text: 'Supernova Performance Engine', completed: false, highlight: true },
+            { text: 'Supernova Performance Engine', completed: true },
             // { text: 'Scalable Market Architecture', completed: false },
-            { text: 'AI-Powered Resolution Agents', completed: false },
+            { text: 'AI-Powered Resolution Agents', completed: false, highlight: true },
             { text: 'Launch on Devnet', completed: false }
         ]
     },
