@@ -143,3 +143,51 @@ export const generateMarketAnalysis = async (title: string, description: string)
 
     throw new Error("Failed to generate analysis.");
 };
+
+export interface OracleResolution {
+    outcome: 'YES' | 'NO' | 'UNCERTAIN';
+    confidence: number; // 0-100
+    reasoning: string;
+}
+
+export const getOracleResolution = async (title: string, description: string): Promise<OracleResolution> => {
+    if (!API_KEY) throw new Error("Missing API Key");
+
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const today = new Date().toISOString();
+
+    const systemPrompt = `
+    You are an Impartial Judge and Fact Checker for a prediction market.
+    Your job is to determine if the following event has unambiguously occurred.
+    
+    Current Date: ${today}
+    
+    Market: "${title}"
+    Details: "${description}"
+
+    Task:
+    1. Search your knowledge base for real-world confirmation of this event.
+    2. If the event is in the future relative to Current Date, output "UNCERTAIN" (Reason: "Event date is in the future").
+    3. If the event hasn't happened yet but the deadline passed, output "NO".
+    4. If the event DEFINITELY happened, output "YES".
+
+    Output JSON ONLY:
+    {
+      "outcome": "YES" | "NO" | "UNCERTAIN",
+      "confidence": 95,
+      "reasoning": "Short explanation citing dates/facts."
+    }
+    `;
+
+    // Use Flash model for speed/reasoning
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    try {
+        const result = await model.generateContent(systemPrompt);
+        const text = result.response.text();
+        const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(jsonStr);
+    } catch (err) {
+        throw new Error("Oracle failed to consult the spirits.");
+    }
+};

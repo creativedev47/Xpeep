@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBolt, faSpinner, faCheckCircle, faClock, faChartLine, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faBolt, faSpinner, faCheckCircle, faClock, faChartLine, faUsers, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData, useResolveMarket, useResetSystem } from 'hooks/transactions';
 import { useIsAdmin, useMarketMetadata } from 'hooks';
 import { useResolvedHistory } from 'hooks/supabase';
@@ -16,7 +16,12 @@ const AdminMarketRow = ({ market, onResolve }: { market: any, onResolve: (id: nu
         <tr className='hover:bg-primary/5 transition-colors'>
             <td className='px-6 py-5'>
                 <div className='flex flex-col gap-1'>
-                    <span className='font-bold text-sm text-primary'>{market.title}</span>
+                    <MxLink
+                        to={RouteNamesEnum.marketDetails.replace(':id', market.id)}
+                        className='font-bold text-sm text-primary hover:text-accent transition-colors'
+                    >
+                        {market.title}
+                    </MxLink>
                     <span className='text-[8px] uppercase font-bold text-primary/30 tracking-widest'>
                         {metadata?.category || 'General'} • Market #{market.id}
                     </span>
@@ -33,6 +38,12 @@ const AdminMarketRow = ({ market, onResolve }: { market: any, onResolve: (id: nu
             <td className='px-6 py-5 text-right'>
                 {market.status === 'Open' && (
                     <div className='flex items-center justify-end gap-2'>
+                        <MxLink
+                            to={RouteNamesEnum.marketDetails.replace(':id', market.id)}
+                            className='mr-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase hover:bg-primary/20 transition-all flex items-center gap-2 group'
+                        >
+                            Manage <FontAwesomeIcon icon={faArrowRight} className='group-hover:translate-x-0.5 transition-transform' />
+                        </MxLink>
                         <button
                             onClick={() => onResolve(market.id, 1)}
                             className='px-3 py-1 rounded-lg bg-primary text-background text-[10px] font-bold uppercase hover:shadow-md transition-all'

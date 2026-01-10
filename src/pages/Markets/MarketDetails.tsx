@@ -9,6 +9,7 @@ import { usePlaceBet, useGetMarketData, useResolveMarket, useGetUserBets, useCla
 import { useIsAdmin } from 'hooks/useIsAdmin';
 import { useMarketMetadata, useMarketRealtime } from 'hooks/supabase';
 import { PeepInsights } from 'components/AI/PeepInsights';
+import { getOracleResolution, OracleResolution } from 'utils/ai/gemini';
 
 export const MarketDetails = () => {
     const { id } = useParams();
@@ -18,6 +19,10 @@ export const MarketDetails = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [userWinnings, setUserWinnings] = useState<string | null>(null);
     const [currentUserBet, setCurrentUserBet] = useState<{ outcome: number, amount: string } | null>(null);
+
+    // Oracle State
+    const [oracleResult, setOracleResult] = useState<OracleResolution | null>(null);
+    const [oracleLoading, setOracleLoading] = useState(false);
 
     const placeBet = usePlaceBet();
     const resolveMarket = useResolveMarket();
@@ -127,6 +132,21 @@ export const MarketDetails = () => {
         setTimeout(fetchMarket, 3000);
     };
 
+    const handleConsultOracle = async () => {
+        if (!market) return;
+        setOracleLoading(true);
+        setOracleResult(null);
+        try {
+            const result = await getOracleResolution(market.title, market.title);
+            setOracleResult(result);
+        } catch (error) {
+            console.error(error);
+            alert("The Oracle is silent right now.");
+        } finally {
+            setOracleLoading(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <AuthRedirectWrapper requireAuth={false}>
@@ -209,6 +229,44 @@ export const MarketDetails = () => {
                                         As an administrator, you can resolve this market by selecting the winning outcome.
                                         This will allow participants to claim their winnings.
                                     </p>
+
+                                    {/* Oracle Section */}
+                                    <div className='mb-6 p-4 rounded-xl bg-background/40 border border-primary/10'>
+                                        <div className='flex items-center justify-between mb-4'>
+                                            <div className='flex items-center gap-2'>
+                                                <div className='w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400'>
+                                                    <FontAwesomeIcon icon={faBolt} />
+                                                </div>
+                                                <span className='font-bold text-sm text-primary uppercase tracking-wider'>AI Oracle Judge</span>
+                                            </div>
+                                            <button
+                                                onClick={handleConsultOracle}
+                                                disabled={oracleLoading}
+                                                className='text-[10px] font-bold uppercase tracking-widest bg-purple-500 text-white px-3 py-1.5 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50'
+                                            >
+                                                {oracleLoading ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Consult Oracle'}
+                                            </button>
+                                        </div>
+
+                                        {oracleResult && (
+                                            <div className='animate-fade-in'>
+                                                <div className='flex items-center gap-3 mb-2'>
+                                                    <span className={`text-xl font-black uppercase ${oracleResult.outcome === 'YES' ? 'text-green-400' :
+                                                        oracleResult.outcome === 'NO' ? 'text-red-400' : 'text-yellow-400'
+                                                        }`}>
+                                                        {oracleResult.outcome}
+                                                    </span>
+                                                    <span className='text-[10px] font-bold bg-primary/20 px-2 py-0.5 rounded text-primary/60'>
+                                                        Confidence: {oracleResult.confidence}%
+                                                    </span>
+                                                </div>
+                                                <p className='text-xs text-soft-blue/90 italic border-l-2 border-primary/20 pl-2'>
+                                                    "{oracleResult.reasoning}"
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <div className='grid grid-cols-2 gap-4'>
                                         <button
                                             onClick={() => handleResolve(1)}
@@ -237,8 +295,8 @@ export const MarketDetails = () => {
 
                         {/* Sidebar: Betting OR Results */}
                         <div className='flex flex-col gap-6'>
-                            {/* AI Analyst Module */}
-                            {!isResolved && (
+                            {/* AI Analyst Module - HIDDEN FOR ADMINS */}
+                            {!isResolved && !isAdmin && (
                                 <PeepInsights
                                     title={market.title}
                                     description={market.description || market.title}

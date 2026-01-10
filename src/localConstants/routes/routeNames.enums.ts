@@ -10,7 +10,8 @@ export enum RouteNamesEnum {
   createMarket = '/create-market',
   admin = '/admin',
   roadmap = '/roadmap',
-  howItWorks = '/how-it-works'
+  howItWorks = '/how-it-works',
+  marketDetails = '/markets/:id'
 }
 
 
