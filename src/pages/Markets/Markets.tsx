@@ -75,7 +75,7 @@ export const Markets = () => {
                 <div className='flex flex-col gap-6 md:gap-10 py-6 md:py-12'>
                     <div className='flex flex-col md:flex-row md:items-end justify-between gap-6'>
                         <div>
-                            <h1 className='text-3xl md:text-4xl font-bold mb-2 text-primary'>Prediction Markets</h1>
+                            <h1 className='text-3xl md:text-4xl font-bold mb-2 text-primary'>Markets</h1>
                             <p className='text-soft-blue/80'>Peep into the future and stake your truth.</p>
                         </div>
 

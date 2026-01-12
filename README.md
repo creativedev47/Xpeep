@@ -1,55 +1,71 @@
-# Xpeep - Decentralized Prediction Market
+# Xpeep - Decentralized Prediction Market 🔮
+
+![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)
+![MultiversX](https://img.shields.io/badge/Blockchain-MultiversX-black)
+![React](https://img.shields.io/badge/Frontend-React-61dafb)
 
 **Xpeep** is a high-stakes decentralized prediction market platform built on the [MultiversX](https://multiversx.com/) blockchain. Peep the future, bet on truth, and leverage sub-second finality for real-time predictions.
 
 ## 🚀 Overview
 
-The frontend interacts with the Xpeep smart contract deployed on Devnet at:
-`erd1qqqqqqqqqqqqqpgqlf7uyjfn8ajxzs3umc2cx7anneekr6ycdl7swcr83z`
+Xpeep revolutionizes how users interact with prediction markets by combining a sleek, cyberpunk-inspired interface with the robust security of the MultiversX blockchain. 
 
-## Features
+The frontend interacts with the Xpeep smart contract deployed on **Devnet**.
 
-- **Fully On-Chain**: All markets, bets, and resolutions are handled by secure smart contracts.
-- **Futuristic UI**: A high-fidelity, neon-themed interface designed for the next generation of web3 users.
+| Contract | Address |
+|----------|---------|
+| **Core** | `erd1qqqqqqqqqqqqqpgqlf7uyjfn8ajxzs3umc2cx7anneekr6ycdl7swcr83z` |
 
-## Requirements
+## ✨ Key Features
 
-- Node.js version 16.20.0+
-- Yarn or Npm
+- **🤖 AI-Powered Analysis**: Leveraging Google Gemini AI to provide real-time market sentiment analysis and resolution assistance.
+- **🔒 Fully On-Chain**: Transparent and secure markets where all bets and resolutions are executed via smart contracts.
+- **🎨 Futuristic UI**: A high-fidelity, neon-themed interface designed for the next generation of web3 users.
+- **⚡ Lightning Fast**: Built with Vite and MultiversX for sub-second interactions and updates.
 
-## Getting Started
+## 🛠️ Technology Stack
 
-### Step 1. Install modules
+- **Frontend**: [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Blockchain SDK**: [@multiversx/sdk-dapp](https://docs.multiversx.com/sdk-and-tools/sdk-dapp)
+- **AI Integration**: [@google/generative-ai](https://ai.google.dev/)
 
-From a terminal, navigate to the project folder and run:
+## 📋 Requirements
+
+- **Node.js**: version 18.0.0+ recommended (Minimum 16.20.0)
+- **Package Manager**: Yarn or Npm
+
+## 🏁 Getting Started
+
+### 1. Installation
+
+Clone the repository and install dependencies:
 
 ```bash
-yarn install
+git clone https://github.com/creativedev47/Xpeep.git
+cd xpeep
+yarn
 ```
 
-### Step 2. Running in development mode
+### 2. Development
 
-In the project folder run:
+Start the application in development mode (connected to Devnet):
 
 ```bash
 yarn start:devnet
 ```
 
-This will start the app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The app will be available at [http://localhost:3000](http://localhost:3000).
 
-### Step 3. Build for production
+### 3. Production Build
 
-To build the project for deployment:
+Create an optimized build for deployment:
 
 ```bash
 yarn build:devnet
 ```
 
-## Smart Contract
+## 📄 License
 
-The frontend interacts with the xPeep smart contract deployed on Devnet at:
-`erd1qqqqqqqqqqqqqpgqlf7uyjfn8ajxzs3umc2cx7anneekr6ycdl7swcr83z`
-
-## License
-
-GPL-3.0-or-later
+This project is licensed under the [GPL-3.0-or-later](LICENSE).
