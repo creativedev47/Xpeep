@@ -119,7 +119,7 @@ export const Unlock = () => {
                   />
                 </div>
 
-                <div className='md:col-span-2 mt-4'>
+                {/* <div className='md:col-span-2 mt-4'>
                   <div className='h-[1px] bg-primary/5 w-full mb-6' />
                   <div className='flex flex-col gap-2'>
                     <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 text-center mb-1'>Hardware</span>
@@ -128,7 +128,7 @@ export const Unlock = () => {
                       {...commonProps}
                     />
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 
