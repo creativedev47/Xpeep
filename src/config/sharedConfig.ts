@@ -1,5 +1,5 @@
 // Generate your own WalletConnect 2 ProjectId here: https://cloud.walletconnect.com/app
-export const walletConnectV2ProjectId = '3196785ac7096e9a5db878838bcf75ae';
+export const walletConnectV2ProjectId = 'dde826e361f35da72c97b6ad90811443';
 export const apiTimeout = 6000;
 export const transactionSize = 10;
 export const nativeAuth = true;

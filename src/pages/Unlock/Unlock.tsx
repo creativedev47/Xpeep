@@ -9,15 +9,16 @@ import {
   ExtensionLoginButton,
   LedgerLoginButton,
   OperaWalletLoginButton,
-  WalletConnectLoginButton,
   WebWalletLoginButton as WebWalletUrlLoginButton,
   XaliasLoginButton,
   CrossWindowLoginButton
 } from 'components/sdkDappComponents';
 import { useExtensionLogin } from '@multiversx/sdk-dapp/hooks/login/useExtensionLogin';
+import { useWalletConnectV2Login } from '@multiversx/sdk-dapp/hooks/login/useWalletConnectV2Login';
 import { nativeAuth, walletConnectV2ProjectId } from 'config';
 import { RouteNamesEnum } from 'localConstants';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { Logo } from 'components/Logo';
 
@@ -51,11 +52,24 @@ export const Unlock = () => {
     onLoginRedirect: loginProps.onLoginRedirect
   });
 
+  const [initiateWalletConnectV2Login] = useWalletConnectV2Login({
+    callbackRoute: loginProps.callbackRoute,
+    nativeAuth: loginProps.nativeAuth,
+    onLoginRedirect: loginProps.onLoginRedirect
+  });
+
   const commonProps: any = {
     callbackRoute: loginProps.callbackRoute,
     nativeAuth: true,
     onLoginRedirect: loginProps.onLoginRedirect
   };
+
+  useEffect(() => {
+    const isWalletProvider = (window as any).elrondWallet;
+    if (isWalletProvider) {
+      initiateExtensionLogin();
+    }
+  }, []);
 
   const buttonClassName = 'neon-button py-2.5 px-6 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary text-background hover:shadow-lg transition-all w-full flex items-center justify-center gap-2';
 
@@ -86,11 +100,12 @@ export const Unlock = () => {
 
                 <div className='flex flex-col gap-2'>
                   <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 ml-1'>Mobile</span>
-                  <WalletConnectLoginButton
-                    loginButtonText='xPortal App'
-                    walletConnectV2ProjectId={walletConnectV2ProjectId}
-                    {...commonProps}
-                  />
+                  <button
+                    onClick={() => initiateWalletConnectV2Login()}
+                    className={buttonClassName}
+                  >
+                    xPortal App
+                  </button>
                 </div>
 
                 <div className='flex flex-col gap-2'>
