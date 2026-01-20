@@ -32,7 +32,18 @@ export default defineConfig({
     svgrPlugin(),
     nodePolyfills({
       globals: { Buffer: true, global: true, process: true }
-    })
+    }),
+    {
+      name: 'remove-use-client',
+      transform(code, id) {
+        if (id.includes('@multiversx/sdk-dapp-ui') && code.includes('"use client"')) {
+          return {
+            code: code.replace('"use client";', '').replace('"use client"', ''),
+            map: null
+          };
+        }
+      }
+    }
   ],
   build: {
     outDir: 'build',
