@@ -6,6 +6,11 @@ import svgrPlugin from 'vite-plugin-svgr';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
+  optimizeDeps: {
+    include: [
+      'protobufjs/minimal'
+    ]
+  },
   server: {
     port: Number(process.env.PORT) || 3000,
     strictPort: true,
@@ -29,7 +34,14 @@ export default defineConfig({
     })
   ],
   build: {
-    outDir: 'build'
+    outDir: 'build',
+    commonjsOptions: {
+      include: [
+        /node_modules/,
+        /node_modules\/protobufjs\/minimal/,
+        'protobufjs/minimal'
+      ]
+    }
   },
   preview: {
     port: 3002,
