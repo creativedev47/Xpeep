@@ -29,7 +29,7 @@ export const useCreateMarket = () => {
             console.error('Failed to save market metadata to Supabase', err);
         }
 
-        const createMarketTransaction = smartContract.methodsExplicit
+        const createMarketTransaction = smartContract.methods
             .createMarket([BytesValue.fromUTF8(description), new U64Value(endTime)])
             .withGasLimit(20000000)
             .withSender(new Address(address))

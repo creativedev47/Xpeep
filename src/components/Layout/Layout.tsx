@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AuthenticatedRoutesWrapper } from 'components/sdkDappComponents';
+// import { AuthenticatedRoutesWrapper } from 'components/sdkDappComponents'; 
 import { RouteNamesEnum } from 'localConstants/routes';
 import { routes } from 'routes/routes';
 import { Footer } from './Footer';
@@ -14,12 +14,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
     <div className='flex min-h-screen flex-col bg-background'>
       {!isUnlockPage && <Header />}
       <main className='flex flex-grow items-stretch justify-center'>
-        <AuthenticatedRoutesWrapper
-          routes={routes}
-          unlockRoute={`${RouteNamesEnum.unlock}${search}`}
-        >
-          {children}
-        </AuthenticatedRoutesWrapper>
+        {children}
       </main>
       {!isUnlockPage && <Footer />}
     </div>

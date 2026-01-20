@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Button } from 'components/Button';
 import { MxLink } from 'components/MxLink';
 import { logout } from 'helpers';
-import { useGetIsLoggedIn, useGetAccountInfo } from 'hooks';
+import { useGetIsLoggedIn, useGetAccount } from 'hooks';
+import { useWalletConnect } from 'hooks/useWalletConnect';
 import { RouteNamesEnum } from 'localConstants';
 import { useMatch, useNavigate } from 'react-router-dom';
 
@@ -14,15 +15,17 @@ import { useTheme } from 'context/ThemeContext';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
-  const { address, account } = useGetAccountInfo();
+  const { address, balance } = useGetAccount();
   const isUnlockRoute = Boolean(useMatch(RouteNamesEnum.unlock));
   const navigate = useNavigate();
   const isAdmin = useIsAdmin();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const walletConnect = useWalletConnect();
+
   const handleLogout = () => {
     sessionStorage.clear();
-    logout(`${window.location.origin}/unlock`, () => navigate(RouteNamesEnum.unlock), false);
+    logout(`${window.location.origin}/home`, () => navigate(RouteNamesEnum.home), false);
   };
 
   const navItems = [
@@ -39,7 +42,7 @@ export const Header = () => {
     { name: 'Wallet', route: RouteNamesEnum.wallet },
   ];
 
-  const formattedBalance = (parseFloat(account.balance) / 10 ** 18).toFixed(4);
+  const formattedBalance = (parseFloat(balance) / 10 ** 18).toFixed(4);
 
 
   const { theme, toggleTheme } = useTheme();
@@ -107,14 +110,14 @@ export const Header = () => {
           </div>
         ) : (
           !isUnlockRoute && (
-            <MxLink
-              to={RouteNamesEnum.unlock}
-              className='neon-button bg-primary text-background font-bold px-4 py-2 md:px-6 md:py-2 rounded-full text-xs md:text-sm uppercase tracking-widest hover:shadow-md'
+            <button
+              onClick={walletConnect}
+              className='neon-button bg-primary text-background font-bold px-4 py-2 md:px-6 md:py-2 rounded-full text-xs md:text-sm uppercase tracking-widest hover:shadow-md flex items-center'
             >
               <FontAwesomeIcon icon={faWallet} className='mr-2' />
               <span className="hidden md:inline">Connect</span>
               <span className="md:hidden">Connect</span>
-            </MxLink>
+            </button>
           )
         )}
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useGetAccount } from 'hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faUsers, faEye } from '@fortawesome/free-solid-svg-icons';
 import { MxLink } from 'components/MxLink';
@@ -15,6 +16,7 @@ interface MarketCardProps {
 }
 
 export const MarketCard = ({ id, title, category, totalStaked, participants, endTime, status = 'Open' }: MarketCardProps) => {
+    const { address } = useGetAccount();
     const isResolved = status !== 'Open';
 
     return (
@@ -59,14 +61,14 @@ export const MarketCard = ({ id, title, category, totalStaked, participants, end
             </div>
 
             <MxLink
-                to={`${RouteNamesEnum.markets}/${id}`}
+                to={isResolved || address ? `${RouteNamesEnum.markets}/${id}` : RouteNamesEnum.unlock}
                 className={`neon-button font-bold py-3 rounded-xl text-sm uppercase tracking-widest text-center transition-all mt-auto flex items-center justify-center gap-2 ${isResolved
                     ? 'bg-primary/5 text-primary/40 hover:bg-primary/10'
                     : 'bg-primary/5 hover:bg-primary hover:text-background text-primary'
                     }`}
             >
                 <FontAwesomeIcon icon={faEye} />
-                {isResolved ? 'View Results' : 'Peep In'}
+                {isResolved ? 'View Results' : (address ? 'Peep In' : 'Connect to Peep')}
             </MxLink>
         </div>
 

@@ -33,16 +33,16 @@ export const usePlaceBet = () => {
         // Log Activity
         logPeep(marketId, amount, outcome === 1 ? 'YES' : 'NO', `Market #${marketId}`);
 
-        const placeBetTransaction = smartContract.methodsExplicit
+        // Build transaction using Real SmartContract
+        const placeBetTransaction = smartContract.methods
             .placeBet([new U64Value(marketId), new U8Value(outcome)])
-            .withValue(TokenTransfer.egldFromAmount(amount))
+            .withValue(TokenTransfer.newFromNativeAmount(BigInt(amount))) // Use newFromNativeAmount for EGLD
             .withGasLimit(10000000)
             .withSender(new Address(address))
             .withChainID(getChainId())
             .buildTransaction();
 
-        await refreshAccount();
-
+        // Helper handles signing and sending (manual implementation)
         await sendTransactions({
             transactions: [placeBetTransaction],
             transactionsDisplayInfo: {
@@ -53,5 +53,7 @@ export const usePlaceBet = () => {
             redirectAfterSign: false,
             callbackRoute: RouteNamesEnum.dashboard
         });
+
+        await refreshAccount();
     };
 };

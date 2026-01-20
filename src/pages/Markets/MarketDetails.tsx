@@ -11,8 +11,11 @@ import { useMarketMetadata, useMarketRealtime } from 'hooks/supabase';
 import { PeepInsights } from 'components/AI/PeepInsights';
 import { getOracleResolution, OracleResolution } from 'utils/ai/gemini';
 
+import { useGetAccount } from 'hooks';
+
 export const MarketDetails = () => {
     const { id } = useParams();
+    const { address } = useGetAccount();
     const [stakeAmount, setStakeAmount] = useState('1');
     const [selectedOutcome, setSelectedOutcome] = useState<number | null>(null);
     const [market, setMarket] = useState<any>(null);
@@ -285,12 +288,12 @@ export const MarketDetails = () => {
                             )}
 
                             {/* Chart Placeholder (Visible if NOT resolved) */}
-                            {!isResolved && (
+                            {/* {!isResolved && (
                                 <div className='glass-panel p-8 h-64 flex flex-col items-center justify-center gap-4'>
                                     <FontAwesomeIcon icon={faChartPie} size='3x' className='text-primary/10' />
                                     <p className='text-primary/30 text-sm font-bold uppercase tracking-widest'>Odds Visualization Coming Soon</p>
                                 </div>
-                            )}
+                            )} */}
                         </div>
 
                         {/* Sidebar: Betting OR Results */}
@@ -459,13 +462,23 @@ export const MarketDetails = () => {
                                                             </div>
                                                         </div>
 
-                                                        <button
-                                                            onClick={handlePlaceBet}
-                                                            className='w-full neon-button bg-primary text-background font-bold py-4 rounded-2xl uppercase tracking-widest hover:shadow-md'
-                                                        >
-                                                            <FontAwesomeIcon icon={faBolt} className='mr-2' />
-                                                            Confirm Peep
-                                                        </button>
+                                                        {address ? (
+                                                            <button
+                                                                onClick={handlePlaceBet}
+                                                                className='w-full neon-button bg-primary text-background font-bold py-4 rounded-2xl uppercase tracking-widest hover:shadow-md'
+                                                            >
+                                                                <FontAwesomeIcon icon={faBolt} className='mr-2' />
+                                                                Confirm Peep
+                                                            </button>
+                                                        ) : (
+                                                            <MxLink
+                                                                to={RouteNamesEnum.unlock}
+                                                                className='flex items-center justify-center w-full neon-button bg-primary/20 text-primary font-bold py-4 rounded-2xl uppercase tracking-widest hover:bg-primary/30 transition-colors'
+                                                            >
+                                                                <FontAwesomeIcon icon={faBolt} className='mr-2' />
+                                                                Connect Wallet to Peep
+                                                            </MxLink>
+                                                        )}
 
                                                         {stakeAmount && selectedOutcome !== null && (
                                                             <div className='mt-4 p-4 rounded-xl bg-primary/5 border border-primary/10'>

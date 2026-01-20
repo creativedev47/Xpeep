@@ -1,25 +1,18 @@
-/**
- * components get re-exported because it makes the build size smaller
- * and allows testing with Jest (see `moduleNameMapper` in package.json)
- */
-export { CopyButton } from '@multiversx/sdk-dapp/UI/CopyButton/CopyButton';
-export { ExtensionLoginButton } from '@multiversx/sdk-dapp/UI/extension/ExtensionLoginButton/ExtensionLoginButton';
-export { FormatAmount } from '@multiversx/sdk-dapp/UI/FormatAmount/FormatAmount';
-export { LedgerLoginButton } from '@multiversx/sdk-dapp/UI/ledger/LedgerLoginButton/LedgerLoginButton';
-export { Loader } from '@multiversx/sdk-dapp/UI/Loader/Loader';
-export { NotificationModal } from '@multiversx/sdk-dapp/UI/NotificationModal/NotificationModal';
-export { OperaWalletLoginButton } from '@multiversx/sdk-dapp/UI/operaWallet/OperaWalletLoginButton/OperaWalletLoginButton';
-export { PageState } from '@multiversx/sdk-dapp/UI/PageState/PageState';
-export { SignTransactionsModals } from '@multiversx/sdk-dapp/UI/SignTransactionsModals/SignTransactionsModals';
-export { TransactionsTable } from '@multiversx/sdk-dapp/UI/TransactionsTable/TransactionsTable';
-export { TransactionsToastList } from '@multiversx/sdk-dapp/UI/TransactionsToastList/TransactionsToastList';
-export { WalletConnectLoginButton } from '@multiversx/sdk-dapp/UI/walletConnect/WalletConnectLoginButton/WalletConnectLoginButton';
-export { WebWalletLoginButton } from '@multiversx/sdk-dapp/UI/webWallet/WebWalletLoginButton/WebWalletLoginButton';
-export { CrossWindowLoginButton } from '@multiversx/sdk-dapp/UI/webWallet/CrossWindowLoginButton/CrossWindowLoginButton';
-export { XaliasLoginButton } from '@multiversx/sdk-dapp/UI/webWallet/XaliasLoginButton/XaliasLoginButton';
-export { AuthenticatedRoutesWrapper } from '@multiversx/sdk-dapp/wrappers/AuthenticatedRoutesWrapper/AuthenticatedRoutesWrapper';
-export { AxiosInterceptorContext } from '@multiversx/sdk-dapp/wrappers/AxiosInterceptorContext/AxiosInterceptorContext';
-export { DappProvider } from '@multiversx/sdk-dapp/wrappers/DappProvider/DappProvider';
-export { TransactionRow } from '@multiversx/sdk-dapp/UI/TransactionsTable/components/TransactionRow';
-export { ACCOUNTS_ENDPOINT } from '@multiversx/sdk-dapp/apiCalls/endpoints';
-export { ExplorerLink } from '@multiversx/sdk-dapp/UI/ExplorerLink';
+export { MvxCopyButton as CopyButton } from 'lib';
+export { MvxFormatAmount as FormatAmount } from 'lib';
+export { MvxTransactionsTable as TransactionsTable } from 'lib';
+export { MvxExplorerLink as ExplorerLink } from 'lib';
+export { MvxUnlockButton as UnlockButton } from 'lib';
+// export { MvxTrim as Trim } from 'lib'; 
+
+// Legacy wrappers that reference DappProvider or Context might be obsolete.
+// Check explicit usages if needed.
+// export { AxiosInterceptorContext } from 'lib'; // If available in lib/sdkDapp
+// export { AuthenticatedRoutesWrapper } from 'lib/sdkDapp'; // If available
+
+// Components not found in lib mapping (might need removal or finding alternatives if used):
+// ExtensionLoginButton, LedgerLoginButton, OperaWalletLoginButton, WalletConnectLoginButton, WebWalletLoginButton, CrossWindowLoginButton, XaliasLoginButton
+// These were used for specific login buttons. Unlock.tsx was refactored to not use them. 
+// If other files use them, this update will break them.
+// I will check usages.
+

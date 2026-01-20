@@ -9,11 +9,12 @@ import { faArrowRight, faBolt, faShieldAlt, faGlobe, faSpinner } from '@fortawes
 import { useGetMarketData } from 'hooks/transactions';
 import { useMarketMetadata } from 'hooks/supabase';
 import { useGetAccount } from 'hooks';
+import { useWalletConnect } from 'hooks/useWalletConnect';
 
 export const Home = () => {
   const [trendingMarkets, setTrendingMarkets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { getMarket, getMarketCount } = useGetMarketData();
+  const { getMarket, getMarketCount, getParticipantCount } = useGetMarketData();
   const { fetchAllMetadata } = useMarketMetadata();
   const { address } = useGetAccount();
 
@@ -36,13 +37,14 @@ export const Home = () => {
           for (const metadata of visibleMarkets) {
             const marketId = metadata.market_id;
             const market = await getMarket(marketId);
+            const participants = await getParticipantCount(marketId);
             if (market) {
               fetched.push({
                 id: marketId.toString(),
                 title: market.description?.toString() || metadata.title || 'Untitled Market',
                 category: metadata.category || 'General',
                 totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
-                participants: 0,
+                participants: participants || 0,
                 endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A',
                 status: market.status?.name || market.status?.toString() || 'Open'
               });
@@ -60,6 +62,8 @@ export const Home = () => {
     fetchTrending();
   }, []);
 
+
+  const walletConnect = useWalletConnect();
 
   return (
     <AuthRedirectWrapper requireAuth={false}>
@@ -87,12 +91,21 @@ export const Home = () => {
                   Start Peeping
                   <FontAwesomeIcon icon={faArrowRight} className='ml-2' />
                 </MxLink>
-                <MxLink
-                  to={address ? RouteNamesEnum.wallet : RouteNamesEnum.unlock}
-                  className='px-8 py-4 rounded-2xl border border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all w-full sm:w-auto text-center'
-                >
-                  {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connect Wallet'}
-                </MxLink>
+                {address ? (
+                  <MxLink
+                    to={RouteNamesEnum.wallet}
+                    className='px-8 py-4 rounded-2xl border border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all w-full sm:w-auto text-center'
+                  >
+                    {`${address.slice(0, 6)}...${address.slice(-4)}`}
+                  </MxLink>
+                ) : (
+                  <button
+                    onClick={walletConnect}
+                    className='px-8 py-4 rounded-2xl border border-primary/10 text-primary font-bold hover:bg-primary/5 transition-all w-full sm:w-auto text-center'
+                  >
+                    Connect Wallet
+                  </button>
+                )}
               </div>
             </div>
 

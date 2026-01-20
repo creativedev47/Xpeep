@@ -1,12 +1,13 @@
 import { Label } from 'components/Label';
 import { OutputContainer } from 'components/OutputContainer';
 import { FormatAmount } from 'components/sdkDappComponents';
-import { useGetAccountInfo, useGetNetworkConfig } from 'hooks';
+import { useGetAccount, useGetNetworkConfig } from 'hooks';
 import { Username } from './components';
 
 export const Account = () => {
   const { network } = useGetNetworkConfig();
-  const { address, account } = useGetAccountInfo();
+  const account = useGetAccount();
+  const { address, shard, balance } = account;
 
   return (
     <OutputContainer>
@@ -18,13 +19,13 @@ export const Account = () => {
 
         <Username account={account} />
         <p>
-          <Label>Shard: </Label> {account.shard}
+          <Label>Shard: </Label> {shard}
         </p>
 
         <p>
           <Label>Balance: </Label>
           <FormatAmount
-            value={account.balance}
+            value={balance}
             egldLabel={network.egldLabel}
             data-testid='balance'
           />

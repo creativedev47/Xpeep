@@ -1,75 +1,33 @@
-import type {
-  ExtensionLoginButtonPropsType,
-  WebWalletLoginButtonPropsType,
-  OperaWalletLoginButtonPropsType,
-  LedgerLoginButtonPropsType,
-  WalletConnectLoginButtonPropsType
-} from '@multiversx/sdk-dapp/UI';
-import {
-  ExtensionLoginButton,
-  LedgerLoginButton,
-  OperaWalletLoginButton,
-  WebWalletLoginButton as WebWalletUrlLoginButton,
-  XaliasLoginButton,
-  CrossWindowLoginButton
-} from 'components/sdkDappComponents';
-import { useExtensionLogin } from '@multiversx/sdk-dapp/hooks/login/useExtensionLogin';
-import { useWalletConnectV2Login } from '@multiversx/sdk-dapp/hooks/login/useWalletConnectV2Login';
-import { nativeAuth, walletConnectV2ProjectId } from 'config';
-import { RouteNamesEnum } from 'localConstants';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { UnlockPanelManager, useGetLoginInfo } from 'lib';
+import { nativeAuth } from 'config';
+import { RouteNamesEnum } from 'localConstants';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { Logo } from 'components/Logo';
 
-type CommonPropsType =
-  | OperaWalletLoginButtonPropsType
-  | ExtensionLoginButtonPropsType
-  | WebWalletLoginButtonPropsType
-  | LedgerLoginButtonPropsType
-  | WalletConnectLoginButtonPropsType;
-
-const USE_WEB_WALLET_CROSS_WINDOW = true;
-
-const WebWalletLoginButton = USE_WEB_WALLET_CROSS_WINDOW
-  ? CrossWindowLoginButton
-  : WebWalletUrlLoginButton;
-
 export const Unlock = () => {
   const navigate = useNavigate();
-  const loginProps = {
-    callbackRoute: RouteNamesEnum.dashboard,
-    nativeAuth: true, // Force boolean
-    onLoginRedirect: () => {
+  const { isLoggedIn } = useGetLoginInfo();
+
+  const unlockPanelManager = UnlockPanelManager.init({
+    loginHandler: () => {
       navigate(RouteNamesEnum.dashboard);
     },
-    logoutRoute: RouteNamesEnum.unlock
-  };
-
-  const [initiateExtensionLogin] = useExtensionLogin({
-    callbackRoute: loginProps.callbackRoute,
-    nativeAuth: loginProps.nativeAuth,
-    onLoginRedirect: loginProps.onLoginRedirect
+    // onClose: () => {
+    //   // Optional: what to do when closing panel without login
+    // }
   });
 
-  const [initiateWalletConnectV2Login] = useWalletConnectV2Login({
-    callbackRoute: loginProps.callbackRoute,
-    nativeAuth: loginProps.nativeAuth,
-    onLoginRedirect: loginProps.onLoginRedirect
-  });
-
-  const commonProps: any = {
-    callbackRoute: loginProps.callbackRoute,
-    nativeAuth: true,
-    onLoginRedirect: loginProps.onLoginRedirect
+  const handleOpenUnlockPanel = () => {
+    unlockPanelManager.openUnlockPanel();
   };
 
   useEffect(() => {
-    const isWalletProvider = (window as any).elrondWallet;
-    if (isWalletProvider) {
-      initiateExtensionLogin();
+    if (isLoggedIn) {
+      navigate(RouteNamesEnum.dashboard);
     }
-  }, []);
+  }, [isLoggedIn, navigate]);
 
   const buttonClassName = 'neon-button py-2.5 px-6 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary text-background hover:shadow-lg transition-all w-full flex items-center justify-center gap-2';
 
@@ -86,65 +44,19 @@ export const Unlock = () => {
                   Connect Wallet
                 </h2>
                 <p className='text-soft-blue/60 text-sm md:text-base max-w-md mx-auto leading-relaxed'>
-                  Choose your preferred method to access the future of prediction markets.
+                  Use the button below to connect your wallet.
                 </p>
               </div>
             </div>
 
-            {/* Login Methods Grid */}
-            <div className='glass-panel p-10 md:p-12 bg-glow-primary relative overflow-hidden shadow-2xl border-primary/10'>
+            {/* Main Action */}
+            <div className='glass-panel p-10 md:p-12 bg-glow-primary relative overflow-hidden shadow-2xl border-primary/10 flex justify-center'>
               <div className='absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32' />
               <div className='absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -ml-32 -mb-32' />
 
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-6 unlock-buttons relative z-10'>
-
-                <div className='flex flex-col gap-2'>
-                  <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 ml-1'>Mobile</span>
-                  <button
-                    onClick={() => initiateWalletConnectV2Login()}
-                    className={buttonClassName}
-                  >
-                    xPortal App
-                  </button>
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 ml-1'>Desktop</span>
-                  <button
-                    onClick={() => initiateExtensionLogin()}
-                    className={buttonClassName}
-                  >
-                    DeFi Wallet
-                  </button>
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 ml-1'>Web</span>
-                  <WebWalletLoginButton
-                    loginButtonText='Web Wallet'
-                    {...commonProps}
-                  />
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 ml-1'>Social</span>
-                  <XaliasLoginButton
-                    loginButtonText='xAlias'
-                    {...commonProps}
-                  />
-                </div>
-
-                {/* <div className='md:col-span-2 mt-4'>
-                  <div className='h-[1px] bg-primary/5 w-full mb-6' />
-                  <div className='flex flex-col gap-2'>
-                    <span className='text-[10px] uppercase tracking-widest font-bold text-primary/40 text-center mb-1'>Hardware</span>
-                    <LedgerLoginButton
-                      loginButtonText='Ledger Hardware Wallet'
-                      {...commonProps}
-                    />
-                  </div>
-                </div> */}
-              </div>
+              <button onClick={handleOpenUnlockPanel} className={`${buttonClassName} w-full md:w-auto min-w-[200px] text-base py-4`}>
+                Choose Wallet
+              </button>
             </div>
 
             {/* Footer Note */}

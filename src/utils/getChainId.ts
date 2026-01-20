@@ -1,6 +1,11 @@
-import { chainIdByEnvironment } from '@multiversx/sdk-dapp/constants/network';
 import { environment } from 'config';
 
+const chainIdByEnvironment: Record<string, string> = {
+  devnet: 'D',
+  testnet: 'T',
+  mainnet: '1'
+};
+
 export const getChainId = () => {
-  return chainIdByEnvironment[environment];
+  return chainIdByEnvironment[environment] || 'D';
 };

@@ -1,11 +1,11 @@
 import React from 'react';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
-import { useGetAccountInfo, useProfile } from 'hooks';
+import { useGetAccount, useProfile } from 'hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWallet, faArrowUp, faArrowDown, faExchangeAlt, faCoins, faUserEdit, faCheck, faTimes, faCopy } from '@fortawesome/free-solid-svg-icons';
 import { API_URL } from 'config';
 export const Wallet = () => {
-    const { address, account } = useGetAccountInfo();
+    const { address, balance } = useGetAccount();
     const { profile, updateProfile, loading: profileLoading } = useProfile(address);
     const [isEditing, setIsEditing] = React.useState(false);
     const [username, setUsername] = React.useState('');
@@ -100,7 +100,7 @@ export const Wallet = () => {
         };
     }, [fetchData, address]);
 
-    const formattedBalance = (parseFloat(account.balance) / 10 ** 18).toFixed(4);
+    const formattedBalance = (parseFloat(balance) / 10 ** 18).toFixed(4);
 
     // Use real price or fallback to 0 if loading/failed
     const usdValue = (parseFloat(formattedBalance) * egldPrice).toFixed(2);
@@ -311,8 +311,8 @@ const CopyButton = ({ text }: { text: string }) => {
         <button
             onClick={handleCopy}
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${copied
-                    ? 'bg-green-500 text-white shadow-lg scale-105'
-                    : 'bg-primary/10 text-primary hover:bg-primary hover:text-white active:scale-95'
+                ? 'bg-green-500 text-white shadow-lg scale-105'
+                : 'bg-primary/10 text-primary hover:bg-primary hover:text-white active:scale-95'
                 }`}
         >
             <FontAwesomeIcon icon={copied ? faCheck : faCopy} size='sm' />

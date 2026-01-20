@@ -1,5 +1,5 @@
 import { supabase } from 'utils/supabase';
-import { useGetAccountInfo } from 'hooks/sdkDappHooks';
+import { useGetAccount } from 'hooks/sdkDappHooks';
 
 export enum ActivityTypeEnum {
     PEEP_PLACED = 'PEEP_PLACED',
@@ -10,7 +10,7 @@ export enum ActivityTypeEnum {
 }
 
 export const useActivityLogger = () => {
-    const { address } = useGetAccountInfo();
+    const { address } = useGetAccount();
 
     const ensureProfileExists = async () => {
         if (!address) return;
@@ -20,8 +20,10 @@ export const useActivityLogger = () => {
             .upsert({
                 address: address,
                 last_seen_at: new Date().toISOString()
-            }, { onConflict: 'address' })
-            .select();
+            }, { onConflict: 'address' });
+
+        // .select() removed to avoid 406 Not Acceptable if headers are mismatched
+        // We just want to ensure it exists.
 
         if (error && error.code !== '23505') { // Ignore duplicate key errors if logic fails
             console.error('Error ensuring profile exists:', error);

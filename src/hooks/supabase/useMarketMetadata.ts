@@ -40,7 +40,7 @@ export const useMarketMetadata = (marketId?: number) => {
                     .select('outcome, amount')
                     .eq('market_id', marketId)
                 // .eq('user_address', address); // 'address' is not defined in this scope
-                console.log("User bet data (user_peeps):", userBetData); // Added for context, can be removed
+                // console.log("User bet data (user_peeps):", userBetData); // Added for context, can be removed
             }
 
             const { data, error } = await supabase

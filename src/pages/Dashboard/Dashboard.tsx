@@ -3,7 +3,7 @@ import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine, faWallet, faTrophy, faPercentage, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData, useGetUserBets } from 'hooks/transactions';
-import { useGetAccountInfo, useIsAdmin, useMarketMetadata, useTableRealtime } from 'hooks';
+import { useGetAccount, useIsAdmin, useMarketMetadata, useTableRealtime } from 'hooks';
 import { useResolvedHistory } from 'hooks/supabase';
 import { MxLink } from 'components/MxLink';
 import { RouteNamesEnum } from 'localConstants';
@@ -44,9 +44,9 @@ const MarketRow = ({ bet }: { bet: any }) => {
 };
 
 export const Dashboard = () => {
-  const { address, account } = useGetAccountInfo();
+  const { address, balance } = useGetAccount();
   const isAdmin = useIsAdmin();
-  const formattedBalance = (parseFloat(account.balance) / 10 ** 18).toFixed(4);
+  const formattedBalance = (parseFloat(balance) / 10 ** 18).toFixed(4);
   const [stats, setStats] = useState({
     totalStaked: '0',
     activeBets: 0,
