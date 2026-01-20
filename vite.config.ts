@@ -8,6 +8,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   optimizeDeps: {
     include: [
+      'protobufjs',
       'protobufjs/minimal'
     ]
   },
@@ -38,7 +39,8 @@ export default defineConfig({
     commonjsOptions: {
       include: [
         /node_modules/,
-        /node_modules\/protobufjs\/minimal/,
+        /node_modules\/protobufjs\/.*/,
+        'protobufjs',
         'protobufjs/minimal'
       ]
     }
