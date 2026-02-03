@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthRedirectWrapper, PageWrapper } from 'wrappers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBolt, faSpinner, faCheckCircle, faClock, faChartLine, faUsers, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import { useGetMarketData, useResolveMarket, useResetSystem } from 'hooks/transactions';
+import { useGetMarketData, useResolveMarket, useResetSystem, useCreateMarket } from 'hooks/transactions';
 import { useIsAdmin, useMarketMetadata } from 'hooks';
 import { useResolvedHistory } from 'hooks/supabase';
 import { RouteNamesEnum } from 'localConstants';
@@ -86,12 +86,18 @@ export const AdminDashboard = () => {
                     const marketId = metadata.market_id;
                     const market = await getMarket(marketId);
                     if (market) {
+                        const chainStatus = market.status?.name || market.status?.toString();
+                        const metaStatus = metadata.status; // Supabase status (Resolved/Open)
+
+                        // If Supabase says Resolved, trust it (it's our management layer)
+                        const finalStatus = metaStatus === 'Resolved' ? 'Resolved' : (chainStatus || 'Open');
+
                         fetchedMarkets.push({
                             id: marketId,
                             title: market.description?.toString() || metadata.title || `Market #${marketId}`,
                             totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
                             endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleString() : 'N/A',
-                            status: market.status?.name || market.status?.toString() || 'Open'
+                            status: finalStatus
                         });
                     }
                 }
@@ -179,6 +185,8 @@ export const AdminDashboard = () => {
                         </div>
                     </div>
 
+                    <PendingProposalsSection />
+
                     <div className='flex flex-col gap-6'>
                         <h2 className='text-2xl font-bold text-primary'>Market Management</h2>
                         <div className='glass-panel overflow-hidden'>
@@ -202,7 +210,7 @@ export const AdminDashboard = () => {
                                             </tr>
                                         </thead>
                                         <tbody className='divide-y divide-primary/5'>
-                                            {markets.map((market) => (
+                                            {markets.filter(m => m.status === 'Open').map((market) => (
                                                 <AdminMarketRow key={market.id} market={market} onResolve={handleResolve} />
                                             ))}
                                         </tbody>
@@ -220,6 +228,127 @@ export const AdminDashboard = () => {
         </AuthRedirectWrapper>
     );
 };
+
+const PendingProposalsSection = () => {
+    const [proposals, setProposals] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { sendCreateMarket } = useCreateMarket();
+    const { supabase } = useMarketMetadata(); // Assuming we expose supabase or import it directly. Using direct import for now to be safe.
+
+    // We need to import supabase directly or use the hook properly.
+    // The existing hooks/supabase file doesn't export the client, but utils/supabase does.
+    // I'll use the import from utils/supabase inside the fetch function or at top level if I could, 
+    // but I can't add imports easily with replace_file_content unless I replace the whole file or top chunk.
+    // I will assume `import { supabase } from 'utils/supabase';` is added or I will use `require` if needed, 
+    // but better to just use the `useMarketMetadata` hook if I can modify it to expose supabase or just add the import at the top in a separate call.
+    // Actually, I will add the import at the top in the next step. For now let's write the component assuming `supabase` is available.
+    // Wait, `AdminDashboard` imports are at the top. I need to add `import { supabase } from 'utils/supabase';`
+    // I will do a multi_replace for imports + this section.
+
+    useEffect(() => {
+        fetchProposals();
+    }, []);
+
+    const fetchProposals = async () => {
+        setLoading(true);
+        // @ts-ignore
+        const { data, error } = await import('utils/supabase').then(m => m.supabase)
+            .from('market_proposals')
+            .select('*')
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false });
+
+        if (data) setProposals(data);
+        setLoading(false);
+    };
+
+    const handleApprove = async (proposal: any) => {
+        if (!window.confirm('Approve this proposal? It will be created on-chain.')) return;
+
+        try {
+            await sendCreateMarket({
+                description: proposal.description,
+                category: proposal.category,
+                endTime: proposal.end_time
+            });
+
+            // Update status to approved
+            // @ts-ignore
+            await import('utils/supabase').then(m => m.supabase)
+                .from('market_proposals')
+                .update({ status: 'approved' })
+                .eq('id', proposal.id);
+
+            fetchProposals();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to approve transaction');
+        }
+    };
+
+    const handleDecline = async (proposal: any) => {
+        const reason = prompt('Reason for decline:', 'Low quality');
+        if (reason === null) return;
+
+        // @ts-ignore
+        await import('utils/supabase').then(m => m.supabase)
+            .from('market_proposals')
+            .update({ status: 'declined', feedback: reason })
+            .eq('id', proposal.id);
+
+        fetchProposals();
+    };
+
+    return (
+        <div className='flex flex-col gap-6'>
+            <div className='flex items-center gap-3'>
+                <h2 className='text-2xl font-bold text-primary'>Pending Proposals</h2>
+                <span className='px-3 py-1 bg-accent/20 text-accent rounded-full text-xs font-bold uppercase tracking-widest'>{proposals.length} New</span>
+            </div>
+
+            <div className='glass-panel overflow-hidden border-accent/20'>
+                {loading ? (
+                    <div className='p-10 flex justify-center text-primary/40 text-xs font-bold uppercase tracking-widest'>Loading proposals...</div>
+                ) : proposals.length === 0 ? (
+                    <div className='p-10 text-center text-primary/40 italic'>No pending proposals. good job!</div>
+                ) : (
+                    <div className='overflow-x-auto'>
+                        <table className='w-full text-left'>
+                            <thead className='bg-accent/5 border-b border-accent/10'>
+                                <tr>
+                                    <th className='px-6 py-4 text-[10px] uppercase font-bold text-accent/60 tracking-widest'>Description</th>
+                                    <th className='px-6 py-4 text-[10px] uppercase font-bold text-accent/60 tracking-widest'>Category</th>
+                                    <th className='px-6 py-4 text-[10px] uppercase font-bold text-accent/60 tracking-widest'>Source</th>
+                                    <th className='px-6 py-4 text-[10px] uppercase font-bold text-accent/60 tracking-widest text-right'>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className='divide-y divide-accent/5'>
+                                {proposals.map((p) => (
+                                    <tr key={p.id} className='hover:bg-accent/5 transition-colors'>
+                                        <td className='px-6 py-4 font-bold text-sm text-primary'>{p.description}</td>
+                                        <td className='px-6 py-4 text-xs text-primary/60'>{p.category}</td>
+                                        <td className='px-6 py-4 text-xs font-mono text-primary/40'>{p.source}</td>
+                                        <td className='px-6 py-4 text-right'>
+                                            <div className='flex items-center justify-end gap-2'>
+                                                <button onClick={() => handleApprove(p)} className='px-3 py-1.5 bg-primary text-background rounded-lg text-[10px] font-bold uppercase hover:scale-105 transition-transform'>
+                                                    Approve
+                                                </button>
+                                                <button onClick={() => handleDecline(p)} className='px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500/20 transition-colors'>
+                                                    Decline
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 
 const MaintenanceSection = ({ onWipeSuccess }: { onWipeSuccess: () => void }) => {
     const { deleteAllMetadata, deleteAllUserBets, loading } = useMarketMetadata();

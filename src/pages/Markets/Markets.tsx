@@ -39,6 +39,10 @@ export const Markets = () => {
                     ]);
 
                     if (market) {
+                        const chainStatus = market.status?.name || market.status?.toString();
+                        // Trust supabase metadata for Resolved status if chain lags
+                        const finalStatus = metadata.status === 'Resolved' ? 'Resolved' : (chainStatus || 'Open');
+
                         fetchedMarkets.push({
                             id: marketId.toString(),
                             title: market.description?.toString() || metadata.title || 'Untitled Market',
@@ -46,7 +50,7 @@ export const Markets = () => {
                             totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
                             participants: participants || 0,
                             endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A',
-                            status: market.status?.name || market.status?.toString() || 'Open'
+                            status: finalStatus
                         });
                     }
                 }
@@ -129,10 +133,11 @@ export const Markets = () => {
                                     const matchesSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase());
 
                                     if (selectedCategory === 'History') {
-                                        // Show only resolved markets
+                                        // Show ONLY resolved markets in History
                                         return matchesSearch && m.status !== 'Open';
                                     } else {
-                                        // Show only OPEN markets for other categories
+                                        // Show ONLY OPEN markets for 'All' and specific categories
+                                        // This ensures resolved markets vanish from the main view immediately
                                         const matchesCategory = selectedCategory === 'All' || m.category === selectedCategory;
                                         return matchesSearch && matchesCategory && m.status === 'Open';
                                     }

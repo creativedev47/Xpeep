@@ -59,6 +59,10 @@ export const MarketDetails = () => {
 
                 const winningOutcome = (data.winning_outcome?.toNumber ? data.winning_outcome.toNumber() : Number(data.winning_outcome)) || metadata?.winning_outcome || 0;
 
+                const chainStatus = data.status?.name || data.status?.toString();
+                // Trust supabase metadata resolved status
+                const finalStatus = metadata?.status === 'Resolved' ? 'Resolved' : (chainStatus || 'Open');
+
                 // Check for user bets (Active or Resolved)
                 const userOutcome = await getUserBetOutcome(parseInt(id));
                 if (userOutcome && userOutcome > 0) {
@@ -69,7 +73,7 @@ export const MarketDetails = () => {
                     });
 
                     // Check for user winnings if market is resolved
-                    if ((data.status?.name === 'Resolved' || data.status?.toString() === 'Resolved') && winningOutcome > 0 && userOutcome === winningOutcome) {
+                    if (finalStatus === 'Resolved' && winningOutcome > 0 && userOutcome === winningOutcome) {
                         const rawAmount = await getUserBetAmount(parseInt(id), winningOutcome);
                         if (parseFloat(rawAmount || '0') > 0) {
                             setUserWinnings(rawAmount || '0');
@@ -90,7 +94,7 @@ export const MarketDetails = () => {
                     totalNo: totalNoNum.toFixed(2),
                     participants: participants || 0,
                     endTime: data.end_time ? new Date(data.end_time * 1000).toLocaleString() : 'N/A',
-                    status: data.status?.name || data.status?.toString() || 'Open',
+                    status: finalStatus,
                     winningOutcome: winningOutcome,
                     outcomes: [
                         { id: 1, name: 'YES', odds: oddsYes, color: 'text-accent', bg: 'bg-accent/10', border: 'border-accent/30' },
