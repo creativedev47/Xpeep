@@ -7,17 +7,17 @@ const roadmapData = [
     {
         quarter: 'Q1 2026',
         year: '2026',
-        status: 'In Progress',
+        status: 'Completed',
         icon: faRocket,
         description: 'Foundation & Performance Optimization',
         items: [
             // { text: 'Real-time Market Sync (Supabase Integration)', completed: true },
             // { text: 'Premium Theme-Aware UI (Interstellar Aesthetics)', completed: true },
             { text: 'Multi-Wallet Matrix (xPortal, Ledger, DeFi Wallet)', completed: true },
-            { text: 'Supernova Performance Engine', completed: true },
+            // { text: 'Supernova Ready', completed: true },
             // { text: 'Scalable Market Architecture', completed: false },
             { text: 'AI-Powered Resolution Agents', completed: true },
-            { text: 'Launch on Devnet', completed: false, highlight: true }
+            { text: 'Launch on Devnet', completed: true, highlight: true }
         ]
     },
     {
