@@ -116,6 +116,11 @@ export const useGetMarketData = () => {
                 returnDataParts: (response.returnData || []).map(item => Buffer.from(item, 'base64'))
             };
 
+            if (!shimmedResponse.returnDataParts || shimmedResponse.returnDataParts.length === 0) {
+                // console.log('DEBUG: Empty return data for getMarket', marketId);
+                return null;
+            }
+
             const parsed = controller.parseQueryResponse(shimmedResponse as any);
             // console.log('getMarket parsed:', parsed);
             return parsed && parsed[0] ? parsed[0].valueOf() : null;
@@ -146,6 +151,10 @@ export const useGetMarketData = () => {
                 function: 'getMarketCount',
                 returnDataParts: (response.returnData || []).map(item => Buffer.from(item, 'base64'))
             };
+
+            if (!shimmedResponse.returnDataParts || shimmedResponse.returnDataParts.length === 0) {
+                return 0;
+            }
 
             // Handling optional number return cleanly
             const parsed = controller.parseQueryResponse(shimmedResponse as any);
@@ -193,6 +202,10 @@ export const useGetMarketData = () => {
                 returnDataParts: (response.returnData || []).map(item => Buffer.from(item, 'base64'))
             };
 
+            if (!shimmedResponse.returnDataParts || shimmedResponse.returnDataParts.length === 0) {
+                return undefined;
+            }
+
             const parsed = controller.parseQueryResponse(shimmedResponse as any);
             return parsed && parsed[0] ? parsed[0].valueOf()?.toString() : undefined;
         } catch (err) {
@@ -234,6 +247,10 @@ export const useGetMarketData = () => {
                 function: 'getParticipantCount',
                 returnDataParts: (response.returnData || []).map(item => Buffer.from(item, 'base64'))
             };
+
+            if (!shimmedResponse.returnDataParts || shimmedResponse.returnDataParts.length === 0) {
+                return 0;
+            }
 
             const parsed = controller.parseQueryResponse(shimmedResponse as any);
             const val = parsed && parsed[0] ? parsed[0].valueOf() : 0;

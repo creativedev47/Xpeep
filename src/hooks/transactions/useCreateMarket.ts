@@ -17,7 +17,7 @@ export const useCreateMarket = () => {
         const nextId = (currentCount || 0) + 1;
 
         const createMarketTransaction = smartContract.methods
-            .createMarket([BytesValue.fromUTF8(description), new U64Value(endTime)])
+            .createMarket(BytesValue.fromUTF8(description), new U64Value(endTime))
             .withGasLimit(20000000)
             .withSender(new Address(address))
             .withChainID(getChainId())

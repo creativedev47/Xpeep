@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBolt, faSpinner, faCheckCircle, faClock, faChartLine, faUsers, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData, useResolveMarket, useResetSystem, useCreateMarket } from 'hooks/transactions';
 import { useIsAdmin, useMarketMetadata } from 'hooks';
-import { supabase } from 'utils/supabase';
+// import { supabase } from 'utils/supabase'; // Dynamic import used instead to avoid circular dependency issues
 import { useResolvedHistory } from 'hooks/supabase';
 import { RouteNamesEnum } from 'localConstants';
 import { MxLink } from 'components/MxLink';
@@ -252,6 +252,7 @@ const PendingProposalsSection = () => {
 
     const fetchProposals = async () => {
         setLoading(true);
+        const supabase = await import('utils/supabase').then(m => m.supabase);
         const { data, error } = await supabase
             .from('market_proposals')
             .select('*')
@@ -273,6 +274,7 @@ const PendingProposalsSection = () => {
             });
 
             // Update status to approved
+            const supabase = await import('utils/supabase').then(m => m.supabase);
             await supabase
                 .from('market_proposals')
                 .update({ status: 'approved' })
@@ -289,6 +291,7 @@ const PendingProposalsSection = () => {
         const reason = prompt('Reason for decline:', 'Low quality');
         if (reason === null) return;
 
+        const supabase = await import('utils/supabase').then(m => m.supabase);
         await supabase
             .from('market_proposals')
             .update({ status: 'declined', feedback: reason })

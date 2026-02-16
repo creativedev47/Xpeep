@@ -33,25 +33,29 @@ export const Markets = () => {
                 // Use metadata as the source of truth for which markets to show
                 for (const metadata of allMetadata) {
                     const marketId = metadata.market_id;
-                    const [market, participants] = await Promise.all([
-                        getMarket(marketId),
-                        getParticipantCount(marketId)
-                    ]);
+                    try {
+                        const [market, participants] = await Promise.all([
+                            getMarket(marketId),
+                            getParticipantCount(marketId)
+                        ]);
 
-                    if (market) {
-                        const chainStatus = market.status?.name || market.status?.toString();
-                        // Trust supabase metadata for Resolved status if chain lags
-                        const finalStatus = metadata.status === 'Resolved' ? 'Resolved' : (chainStatus || 'Open');
+                        if (market) {
+                            const chainStatus = market.status?.name || market.status?.toString();
+                            // Trust supabase metadata for Resolved status if chain lags
+                            const finalStatus = metadata.status === 'Resolved' ? 'Resolved' : (chainStatus || 'Open');
 
-                        fetchedMarkets.push({
-                            id: marketId.toString(),
-                            title: market.description?.toString() || metadata.title || 'Untitled Market',
-                            category: metadata?.category || 'General',
-                            totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
-                            participants: participants || 0,
-                            endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A',
-                            status: finalStatus
-                        });
+                            fetchedMarkets.push({
+                                id: marketId.toString(),
+                                title: market.description?.toString() || metadata.title || 'Untitled Market',
+                                category: metadata?.category || 'General',
+                                totalStaked: market.total_staked ? (parseFloat(market.total_staked) / 10 ** 18).toFixed(2) : '0.00',
+                                participants: participants || 0,
+                                endTime: market.end_time ? new Date(market.end_time * 1000).toLocaleDateString() : 'N/A',
+                                status: finalStatus
+                            });
+                        }
+                    } catch (e) {
+                        console.error(`Failed to fetch on-chain data for market ${marketId}`, e);
                     }
                 }
                 setMarkets(fetchedMarkets);

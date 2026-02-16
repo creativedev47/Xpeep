@@ -82,17 +82,45 @@ class TransactionBuilder {
         val = arg.valueOf();
       }
 
+      // Handle BigInt/Number
       if (typeof val === 'number' || typeof val === 'bigint') {
         let s = val.toString(16);
         if (s.length % 2 !== 0) s = '0' + s;
         return s;
       }
+
+      // Handle SDK Types that return BigNumber or have toString
+      if (typeof val === 'object' && val !== null) {
+        // If it has toString(16), use it (BigNumber)
+        if (typeof val.toString === 'function') {
+          // Try hex first if it accepts base
+          try {
+            const hex = val.toString(16);
+            if (hex && hex !== '[object Object]') {
+              let s = hex;
+              if (s.length % 2 !== 0) s = '0' + s;
+              return s;
+            }
+          } catch (e) { }
+
+          // Fallback to normal toString and convert? 
+          // For BytesValue, toString() might return utf8 string?
+          // BytesValue usually has .hex() or similar in some versions, but let's assume Buffer behavior if it is one.
+        }
+      }
+
       if (typeof val === 'string') {
         return Buffer.from(val).toString('hex');
       }
+
       // AddressValue wrapper check
       if (arg?.value && arg.value instanceof Address) {
         return arg.value.toHex();
+      }
+
+      // Fallback for BytesValue/Buffers that might be passed as is?
+      if (Buffer.isBuffer(val)) {
+        return val.toString('hex');
       }
 
       return '';
