@@ -120,7 +120,7 @@ export const useMarketMetadata = (marketId?: number) => {
         setLoading(true);
         try {
             const { error } = await supabase
-                .from('user_bets')
+                .from('user_peeps')
                 .delete()
                 .neq('market_id', -1); // Delete all
 

@@ -5,6 +5,7 @@ import { RouteNamesEnum } from 'localConstants/routes';
 import { routes } from 'routes/routes';
 import { Footer } from './Footer';
 import { Header } from './Header';
+import { WinningsClaimWidget } from 'components/WinningsClaimWidget/WinningsClaimWidget';
 
 export const Layout = ({ children }: PropsWithChildren) => {
   const { search, pathname } = useLocation();
@@ -17,6 +18,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
         {children}
       </main>
       {!isUnlockPage && <Footer />}
+      <WinningsClaimWidget />
     </div>
   );
 

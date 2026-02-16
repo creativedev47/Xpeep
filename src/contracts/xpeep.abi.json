@@ -88,6 +88,18 @@
             "outputs": []
         },
         {
+            "name": "claimWinningsBatch",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "market_ids",
+                    "type": "variadic<u64>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
             "name": "getMarketCount",
             "mutability": "readonly",
             "inputs": [],

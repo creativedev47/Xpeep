@@ -55,9 +55,10 @@ export const useGetMarketData = () => {
                 // U64Value.valueOf() returns BigNumber usually in SDK? Or native type?
                 // Let's assume toString(16) works on the value.
                 // Safest is to check types.
-                if (typeof v === 'object' && v.toString) return v.toString(16); // BigNumber
-                if (typeof v === 'bigint') return v.toString(16);
-                if (typeof v === 'number') return v.toString(16);
+                const val: any = v;
+                if (typeof val === 'object' && val.toString) return val.toString(16); // BigNumber
+                if (typeof val === 'bigint') return val.toString(16);
+                if (typeof val === 'number') return val.toString(16);
                 return '';
             }
             // AddressValue?
@@ -116,7 +117,8 @@ export const useGetMarketData = () => {
             };
 
             const parsed = controller.parseQueryResponse(shimmedResponse as any);
-            return parsed[0]?.valueOf();
+            // console.log('getMarket parsed:', parsed);
+            return parsed && parsed[0] ? parsed[0].valueOf() : null;
         } catch (err) {
             console.error('Unable to call getMarket', err);
         }
@@ -147,7 +149,7 @@ export const useGetMarketData = () => {
 
             // Handling optional number return cleanly
             const parsed = controller.parseQueryResponse(shimmedResponse as any);
-            const val = parsed[0]?.valueOf();
+            const val = parsed && parsed[0] ? parsed[0].valueOf() : null;
             return val?.toNumber ? val.toNumber() : (val ? Number(val) : 0);
         } catch (err) {
             console.error('Unable to call getMarketCount', err);
@@ -192,7 +194,7 @@ export const useGetMarketData = () => {
             };
 
             const parsed = controller.parseQueryResponse(shimmedResponse as any);
-            return parsed[0]?.valueOf()?.toString();
+            return parsed && parsed[0] ? parsed[0].valueOf()?.toString() : undefined;
         } catch (err) {
             console.error('Unable to call getOutcomeTotal', err);
         }
@@ -234,7 +236,7 @@ export const useGetMarketData = () => {
             };
 
             const parsed = controller.parseQueryResponse(shimmedResponse as any);
-            const val = parsed[0]?.valueOf();
+            const val = parsed && parsed[0] ? parsed[0].valueOf() : 0;
             if (val && typeof val.toNumber === 'function') return val.toNumber();
             return Number(val || 0);
         } catch (err) {

@@ -16,19 +16,6 @@ export const useCreateMarket = () => {
         const currentCount = await getMarketCount();
         const nextId = (currentCount || 0) + 1;
 
-        // 2. Save metadata to Supabase (Crucial for visibility in the new source-of-truth system)
-        try {
-            await supabase
-                .from('markets_metadata')
-                .upsert({
-                    market_id: nextId,
-                    category: category || 'General',
-                    long_description: description
-                });
-        } catch (err) {
-            console.error('Failed to save market metadata to Supabase', err);
-        }
-
         const createMarketTransaction = smartContract.methods
             .createMarket([BytesValue.fromUTF8(description), new U64Value(endTime)])
             .withGasLimit(20000000)
@@ -38,7 +25,7 @@ export const useCreateMarket = () => {
 
         await refreshAccount();
 
-        await sendTransactions({
+        const { error } = await sendTransactions({
             transactions: [createMarketTransaction],
             transactionsDisplayInfo: {
                 processingMessage: 'Creating new market...',
@@ -48,6 +35,21 @@ export const useCreateMarket = () => {
             redirectAfterSign: false,
             callbackRoute: RouteNamesEnum.dashboard
         });
+
+        if (!error) {
+            // 2. Save metadata to Supabase ONLY if transaction is sent successfully
+            try {
+                await supabase
+                    .from('markets_metadata')
+                    .upsert({
+                        market_id: nextId,
+                        category: category || 'General',
+                        long_description: description
+                    });
+            } catch (err) {
+                console.error('Failed to save market metadata to Supabase', err);
+            }
+        }
     };
 
     return { sendCreateMarket };

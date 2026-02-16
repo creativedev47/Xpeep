@@ -9,7 +9,15 @@ import { useMatch, useNavigate } from 'react-router-dom';
 
 import { Logo } from 'components/Logo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faWallet, faUserCircle, faSun, faMoon, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import {
+  faSearch,
+  faWallet,
+  faUserCircle,
+  faSun,
+  faMoon,
+  faBars,
+  faTimes
+} from '@fortawesome/free-solid-svg-icons';
 import { useIsAdmin } from 'hooks/useIsAdmin';
 import { useTheme } from 'context/ThemeContext';
 
@@ -25,25 +33,30 @@ export const Header = () => {
 
   const handleLogout = () => {
     sessionStorage.clear();
-    logout(`${window.location.origin}/home`, () => navigate(RouteNamesEnum.home), false);
+    logout(
+      `${window.location.origin}/home`,
+      () => navigate(RouteNamesEnum.home),
+      false
+    );
   };
 
   const navItems = [
     { name: 'Home', route: RouteNamesEnum.home },
-    ...(isAdmin ? [
-      { name: 'Create', route: RouteNamesEnum.createMarket },
-      { name: 'Control', route: RouteNamesEnum.admin }
-    ] : [
-      { name: 'Markets', route: RouteNamesEnum.markets },
-      { name: 'My Peeps', route: RouteNamesEnum.myBets },
-      { name: 'Roadmap', route: RouteNamesEnum.roadmap },
-      { name: 'Community', route: RouteNamesEnum.community }
-    ]),
-    { name: 'Wallet', route: RouteNamesEnum.wallet },
+    ...(isAdmin
+      ? [
+          { name: 'Create', route: RouteNamesEnum.createMarket },
+          { name: 'Control', route: RouteNamesEnum.admin }
+        ]
+      : [
+          { name: 'Markets', route: RouteNamesEnum.markets },
+          { name: 'My Peeps', route: RouteNamesEnum.myBets },
+          { name: 'Roadmap', route: RouteNamesEnum.roadmap },
+          { name: 'Community', route: RouteNamesEnum.community }
+        ]),
+    { name: 'Wallet', route: RouteNamesEnum.wallet }
   ];
 
   const formattedBalance = (parseFloat(balance) / 10 ** 18).toFixed(4);
-
 
   const { theme, toggleTheme } = useTheme();
 
@@ -89,11 +102,12 @@ export const Header = () => {
         {isLoggedIn ? (
           <div className='flex items-center gap-3'>
             <div className='hidden sm:flex flex-col items-end'>
-              <span className='text-[10px] text-primary/40 uppercase font-bold'>Balance</span>
+              <span className='text-[10px] text-primary/40 uppercase font-bold'>
+                Balance
+              </span>
               <span className='text-xs font-mono text-primary'>
                 {formattedBalance} EGLD
               </span>
-
             </div>
             <div className='h-8 w-[1px] bg-primary/10 mx-1 hidden sm:block' />
             <div className='flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-full pl-3 pr-1 py-1'>
@@ -115,8 +129,8 @@ export const Header = () => {
               className='neon-button bg-primary text-background font-bold px-4 py-2 md:px-6 md:py-2 rounded-full text-xs md:text-sm uppercase tracking-widest hover:shadow-md flex items-center'
             >
               <FontAwesomeIcon icon={faWallet} className='mr-2' />
-              <span className="hidden md:inline">Connect</span>
-              <span className="md:hidden">Connect</span>
+              <span className='hidden md:inline'>Connect</span>
+              <span className='md:hidden'>Connect</span>
             </button>
           )
         )}
@@ -126,7 +140,10 @@ export const Header = () => {
           className='lg:hidden w-10 h-10 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center text-primary hover:bg-primary/10 transition-all ml-2'
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          <FontAwesomeIcon icon={isMobileMenuOpen ? faTimes : faBars} size="lg" />
+          <FontAwesomeIcon
+            icon={isMobileMenuOpen ? faTimes : faBars}
+            size='lg'
+          />
         </button>
       </div>
 
@@ -145,7 +162,10 @@ export const Header = () => {
           ))}
           {/* Mobile Search */}
           <div className='flex items-center bg-primary/5 border border-primary/10 rounded-xl px-4 py-3 mt-2'>
-            <FontAwesomeIcon icon={faSearch} className='text-primary/30 text-sm' />
+            <FontAwesomeIcon
+              icon={faSearch}
+              className='text-primary/30 text-sm'
+            />
             <input
               type='text'
               placeholder='Search events...'
@@ -155,7 +175,5 @@ export const Header = () => {
         </div>
       )}
     </header>
-
   );
 };
-

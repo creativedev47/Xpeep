@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBolt, faSpinner, faCheckCircle, faClock, faChartLine, faUsers, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { useGetMarketData, useResolveMarket, useResetSystem, useCreateMarket } from 'hooks/transactions';
 import { useIsAdmin, useMarketMetadata } from 'hooks';
+import { supabase } from 'utils/supabase';
 import { useResolvedHistory } from 'hooks/supabase';
 import { RouteNamesEnum } from 'localConstants';
 import { MxLink } from 'components/MxLink';
@@ -251,8 +252,7 @@ const PendingProposalsSection = () => {
 
     const fetchProposals = async () => {
         setLoading(true);
-        // @ts-ignore
-        const { data, error } = await import('utils/supabase').then(m => m.supabase)
+        const { data, error } = await supabase
             .from('market_proposals')
             .select('*')
             .eq('status', 'pending')
@@ -273,8 +273,7 @@ const PendingProposalsSection = () => {
             });
 
             // Update status to approved
-            // @ts-ignore
-            await import('utils/supabase').then(m => m.supabase)
+            await supabase
                 .from('market_proposals')
                 .update({ status: 'approved' })
                 .eq('id', proposal.id);
@@ -290,8 +289,7 @@ const PendingProposalsSection = () => {
         const reason = prompt('Reason for decline:', 'Low quality');
         if (reason === null) return;
 
-        // @ts-ignore
-        await import('utils/supabase').then(m => m.supabase)
+        await supabase
             .from('market_proposals')
             .update({ status: 'declined', feedback: reason })
             .eq('id', proposal.id);
